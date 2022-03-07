@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Name of project
-set(PROJ_NAME Assignment3)
+set(PROJ_NAME AceProject)
 project(${PROJ_NAME})
 
 # Specify project files: header files and source files
