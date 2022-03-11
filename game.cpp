@@ -77,6 +77,12 @@ void Game::Init(void)
     // Enable Alpha blending
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    max_y_ = 10.0;
+    min_y_ = -10.0;
+
+    max_x_ = 10.0;
+    min_x_ = -10.0;
 }
 
 
@@ -103,9 +109,15 @@ void Game::Setup(void)
     game_objects_.push_back(new GameObject(glm::vec3(1.0f, -0.5f, 0.0f), tex_[2], size_, true, 0.5f));
 
     // Setup background
-    GameObject *background = new GameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[3], size_, false, 0.5f);
-    background->SetScale(10.0);
-    game_objects_.push_back(background);
+
+    for (int i = -10; i <= 10; i += 10)
+    {
+        for (int j = -10; j <= 10; j += 10)
+        {
+            tile_map_.push_back(new GameObject(glm::vec3(i, j, 0.0f), tex_[3], size_, false, 0.5f));
+            tile_map_[tile_map_.size() - 1]->SetScale(10.0);
+        }
+    }
 }
 
 
@@ -124,7 +136,13 @@ void Game::MainLoop(void)
 
         // Set view to zoom out, centered by default at 0,0
         float cameraZoom = 0.25f;
-        glm::mat4 view_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
+        GameObject* player = game_objects_[0];
+
+        glm::vec3 player_position = player->GetPosition();
+        glm::vec3 cameraPosition = glm::vec3(player_position.x * 0.25, player_position.y * 0.25, 0.0f);
+
+        glm::mat4 translation_matrix = glm::translate(glm::mat4(1.0f), -cameraPosition);
+        glm::mat4 view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
         shader_.SetUniformMat4("view_matrix", view_matrix);
 
         // Calculate delta time
@@ -237,15 +255,78 @@ void Game::Controls(void)
 
     // Check for player input and make changes accordingly
     if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
-        player->SetPosition(curpos + glm::vec3(0, 0.01, 0));
+        float angle = player->GetRotation();
+
+        if (angle < 270)
+        {
+            angle = angle + 90;
+        }
+        else
+        {
+            angle = angle - 270;
+        }
+
+        float x = cos(angle * (3.14159265 / 180)) * 0.03;
+        float y = sin(angle * (3.14159265 / 180)) * 0.03;
+
+
+        glm::vec3 v = player->GetVelocity();
+
+        glm::vec3 max_v = glm::vec3(1.500, 1.500, 0.0f);
+
+        glm::vec3 newVelocity = glm::vec3(v.x + x, v.y + y, 0.0f);
+
+        if (newVelocity.x > max_v.x)
+        {
+            newVelocity.x = max_v.x;
+        }
+
+        if (newVelocity.y > max_v.y)
+        {
+            newVelocity.y = max_v.y;
+        }
+
+        player->SetVelocity(newVelocity);
     }
     if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
-        player->SetPosition(curpos + glm::vec3(0, -0.01, 0));
+        float angle = player->GetRotation();
+
+        if (angle < 270)
+        {
+            angle = angle + 90;
+        }
+        else
+        {
+            angle = angle - 270;
+        }
+        float x = cos(angle * (3.14159265 / 180)) * -0.03;
+        float y = sin(angle * (3.14159265 / 180)) * -0.03;
+
+        glm::vec3 v = player->GetVelocity();
+
+        glm::vec3 min_v = glm::vec3(-1.500, -1.500, 0.0f);
+
+        glm::vec3 newVelocity = glm::vec3(v.x + x, v.y + y, 0.0f);
+
+        if (newVelocity.x < min_v.x)
+        {
+            newVelocity.x = min_v.x;
+        }
+
+        if (newVelocity.y < min_v.y)
+        {
+            newVelocity.y = min_v.y;
+        }
+
+        player->SetVelocity(newVelocity);
+        //player->SetPosition(glm::vec3(curpos.x + x, curpos.y + y, 0.0f));
     }
-    if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) {
+    if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) 
+    {
         player->SetRotation(currot - 1);
     }
-    if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) {
+    if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) 
+    {
         player->SetRotation(currot + 1);
     }
     if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS) {
@@ -260,6 +341,10 @@ void Game::Update(double delta_time)
     // Handle user input
     Controls();
 
+    GameObject* player = game_objects_[0];
+
+    UpdateTiles(player);
+
     // Update and render all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
         // Get the current game object
@@ -273,6 +358,80 @@ void Game::Update(double delta_time)
         // Check for collision with other game objects
         // Render game object
         current_game_object->Render(shader_);
+    }
+
+    for (int i = 0; i < tile_map_.size(); i++)
+    {
+        GameObject* current_tile = tile_map_[i];
+        current_tile->Update(delta_time);
+        current_tile->Render(shader_);
+    }
+}
+
+void Game::UpdateTiles(GameObject* player)
+{
+    glm::vec3 pos = player->GetPosition();
+
+
+    if (pos.y >= max_y_)
+    {
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+
+            glm::vec3 pos = current_tile->GetPosition();
+
+            current_tile->SetPosition(glm::vec3(pos.x, pos.y + 10.0f, 0.0f));
+        }
+
+        max_y_ = max_y_ + 10;
+        min_y_ = min_y_ + 10;
+    }
+
+
+    if (pos.y <= min_y_)
+    {
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+
+            glm::vec3 pos = current_tile->GetPosition();
+
+            current_tile->SetPosition(glm::vec3(pos.x, pos.y - 10.0f, 0.0f));
+        }
+
+        max_y_ = max_y_ - 10;
+        min_y_ = min_y_ - 10;
+    }
+
+    if (pos.x >= max_x_)
+    {
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+
+            glm::vec3 pos = current_tile->GetPosition();
+
+            current_tile->SetPosition(glm::vec3(pos.x + 10.0f, pos.y, 0.0f));
+        }
+
+        max_x_ = max_x_ + 10;
+        min_x_ = min_x_ + 10;
+    }
+
+    if (pos.x <= min_x_)
+    {
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+
+            glm::vec3 pos = current_tile->GetPosition();
+
+            current_tile->SetPosition(glm::vec3(pos.x - 10.0f, pos.y, 0.0f));
+        }
+
+        max_x_ = max_x_ - 10;
+        min_x_ = min_x_ - 10;
     }
 }
        

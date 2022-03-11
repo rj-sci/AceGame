@@ -46,6 +46,8 @@ namespace game {
             // List of game objects
             std::vector<GameObject*> game_objects_;
 
+            std::vector<GameObject*> tile_map_;
+
             // Callback for when the window is resized
             static void ResizeCallback(GLFWwindow* window, int width, int height);
 
@@ -63,6 +65,14 @@ namespace game {
 
             // Update the game based on user input and simulation
             void Update(double delta_time);
+
+            void UpdateTiles(GameObject* player);
+
+            int max_y_;
+            int min_y_;
+
+            int max_x_;
+            int min_x_;
 
     }; // class Game
 
