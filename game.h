@@ -5,9 +5,20 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <vector>
+#include <stdexcept>
+#include <string>
+#include <glm/gtc/matrix_transform.hpp> 
+#include <SOIL/SOIL.h>
+
+#include <path_config.h>
 
 #include "shader.h"
+#include "defs.h"
 #include "game_object.h"
+#include "asteroid.h"
+#include "player_game_object.h"
+#include "collision.h"
+#include "tile.h"
 
 namespace game {
 
@@ -40,11 +51,13 @@ namespace game {
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 4
+#define NUM_TEXTURES 6
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
             std::vector<GameObject*> game_objects_;
+
+            std::vector<GameObject*> tile_map_;
 
             // Callback for when the window is resized
             static void ResizeCallback(GLFWwindow* window, int width, int height);
@@ -63,6 +76,14 @@ namespace game {
 
             // Update the game based on user input and simulation
             void Update(double delta_time);
+
+            void UpdateTiles(GameObject* player);
+
+            int max_y_;
+            int min_y_;
+
+            int max_x_;
+            int min_x_;
 
     }; // class Game
 

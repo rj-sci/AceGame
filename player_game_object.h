@@ -13,7 +13,9 @@ namespace game {
 
             // Update function for moving the player object around
             void Update(double delta_time) override;
-
+            //inherited virtual functions
+            bool ValidCollision(GameObject* other_game_object, double deltatime);
+            bool HandleCollision(GameObject* other_game_object, double deltatime);
     }; // class PlayerGameObject
 
 } // namespace game

@@ -5,6 +5,6 @@
 namespace game {
 	class Collision {
 	public:
-		static int game::Collision::FindCollisions(std::vector<GameObject*>* game_objects_, game::GameObject* current_game_object);
+		static bool game::Collision::FindCollisions(int i, std::vector<GameObject*>* game_objects_, game::GameObject* current_game_object, double deltatime);
 	};
 }
