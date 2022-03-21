@@ -8,11 +8,9 @@ namespace game {
     class EnemyGameObject : public GameObject {
 
     public:
-        EnemyGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GLuint dest_texture, Name type, int damage);
+        EnemyGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GLuint dest_texture,Name name, int damage);
 
         // Update function for moving the player object around
-        void Update(double delta_time) override;
-        void Destroy(void);
     private:
         GLuint dest_texture_;
         bool dead_;

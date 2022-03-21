@@ -1,6 +1,6 @@
 #ifndef GAME_OBJECT_H_
 #define GAME_OBJECT_H_
-
+class GameObject; 
 #include <glm/glm.hpp>
 #define GLEW_STATIC
 #include <GL/glew.h>
@@ -14,22 +14,21 @@ namespace game {
 
     /*
         GameObject is responsible for handling the rendering and updating of objects in the game world
+        GameObject is also a virtual class, to prevent ambiguity when making objects
         The update method is virtual, so you can inherit from GameObject and override the update functionality (see PlayerGameObject for reference)
+        
     */
     class GameObject {
 
         public:
             // Constructor
-            GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable_, double radius, Name type);
+            GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable_, float radius, Name type);
 
             // Update the GameObject's state. Can be overriden for children
             virtual void Update(double delta_time);
 
             // Renders the GameObject using a shader
             void Render(Shader &shader);
-
-            //Collision Detection type methods
-            bool CCCollision(GameObject* other_game_object);
 
             // Getters
             inline glm::vec3& GetPosition(void) { return position_; }
@@ -39,6 +38,7 @@ namespace game {
             inline float GetRadius(void) { return radius_; }
             inline float GetRotation(void) { return rotation_; }
             inline Name GetName(void) { return name_; }
+            inline bool GetDead(void) { return dead_; }
 
             // Setters
             inline void SetPosition(const glm::vec3& position) { position_ = position; }
@@ -47,10 +47,12 @@ namespace game {
             inline void SetTexture(GLuint tex) { texture_ = tex; }
             inline void SetVelocity(const glm::vec3& velocity) { velocity_ = velocity; }
             inline void SetRadius(float radius) { radius_ = radius; }
+            inline void SetDead(void) { dead_ = true; }
             //Unimplemented virtual functions
                 //Collision
                 virtual bool ValidCollision(GameObject* other_game_object, double deltatime) = 0;
                 virtual bool HandleCollision(GameObject* other_game_object, double deltatime) = 0;
+                
 
 
         protected:
@@ -68,10 +70,13 @@ namespace game {
             // Object's texture reference
             GLuint texture_;
             //NEW: enum-type class name
-            Name name_;
+            enum Name name_;
+            //NEW: bool death checker
+            bool dead_;
 
     }; // class GameObject
 
 } // namespace game
-
 #endif // GAME_OBJECT_H_
+
+

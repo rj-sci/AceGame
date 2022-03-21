@@ -1,6 +1,4 @@
-#ifndef GAME_H_
-#define GAME_H_
-
+#pragma once
 #define GLEW_STATIC
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -14,11 +12,12 @@
 
 #include "shader.h"
 #include "defs.h"
-#include "game_object.h"
 #include "asteroid.h"
 #include "player_game_object.h"
-#include "collision.h"
 #include "tile.h"
+#include "bullet.h"
+#include "powerup.h"
+#include "shield.h"
 
 namespace game {
 
@@ -51,14 +50,18 @@ namespace game {
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 6
+#define NUM_TEXTURES 9
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
             std::vector<GameObject*> game_objects_;
-
+            PlayerGameObject* player_;
             std::vector<GameObject*> tile_map_;
+            //firing of bullets
+            double current_time_;
+            double cool_down_;
 
+            bool game_over_;
             // Callback for when the window is resized
             static void ResizeCallback(GLFWwindow* window, int width, int height);
 
@@ -77,7 +80,11 @@ namespace game {
             // Update the game based on user input and simulation
             void Update(double delta_time);
 
-            void UpdateTiles(GameObject* player);
+            void UpdateTiles();
+
+            void PowerUps(double delta_time);
+            //Check for objects that should be removed from the world
+            void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i);
 
             int max_y_;
             int min_y_;
@@ -88,5 +95,3 @@ namespace game {
     }; // class Game
 
 } // namespace game
-
-#endif // GAME_H_
