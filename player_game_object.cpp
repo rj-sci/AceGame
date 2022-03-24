@@ -1,4 +1,5 @@
 #include "player_game_object.h"
+#include "collision.h"
 
 namespace game {
 
@@ -8,7 +9,9 @@ namespace game {
 */
 
 PlayerGameObject::PlayerGameObject(const glm::vec3 &position, GLuint texture, GLint num_elements)
-	: GameObject(position, texture, num_elements, true, 0.5f, Player) {}
+	: GameObject(position, texture, num_elements, true, 0.5, player) {
+	power_up_ = None;
+	}
 
 // Update function for moving the player object around
 void PlayerGameObject::Update(double delta_time) {
@@ -61,11 +64,23 @@ void PlayerGameObject::Update(double delta_time) {
 	GameObject::Update(delta_time);
 }
 bool PlayerGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {
-	if (other_game_object->GetName() == Name::Asteroid) {
-		return CCCollision(other_game_object);
-	}
+	switch (other_game_object->GetName()) {
+		case asteroid:
+			return Collision::CicleCircleCollision(other_game_object, position_, radius_);
+		case powerup:
+			return Collision::CicleCircleCollision(other_game_object, position_, radius_);
+		}
 }
 bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double deltatime) {
+	switch (other_game_object->GetName()) {
+		case asteroid:
+			dead_ = true;
+
+		case powerup:
+			//downcast, prett ew-ish but couldn't think of anything else
+			PowerUp* pwrup = (PowerUp*)other_game_object;
+			power_up_ = pwrup->GetType();
+	}
 	return true;
 }
 

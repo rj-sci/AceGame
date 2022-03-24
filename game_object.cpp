@@ -1,10 +1,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "game_object.h"
+#include "collision.h"
 
 namespace game {
 
-GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable, double radius, Name type) 
+GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable, float radius, Name name) 
 {
 
     // Initialize all attributes
@@ -14,9 +15,10 @@ GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elem
     num_elements_ = num_elements;
     texture_ = texture;
     collidable_ = collidable;
-    radius = radius_; 
+    radius_ = radius; 
     rotation_ = 0.0f;
-    name_ = type;
+    name_ = name;
+    dead_ = false;
 }
 
 
@@ -48,14 +50,6 @@ void GameObject::Render(Shader &shader) {
 
     // Draw the entity
     glDrawElements(GL_TRIANGLES, num_elements_, GL_UNSIGNED_INT, 0);
-}
-bool GameObject::CCCollision(GameObject* other_game_object) {
-    float distance = glm::length(position_ - other_game_object->GetPosition());
-    float radii = other_game_object->GetRadius() + radius_;
-    if (distance < radii) {
-        std::cout << "collision found";
-        return true;
-    }return false;
 }
 
 } // namespace game

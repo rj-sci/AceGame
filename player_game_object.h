@@ -1,7 +1,6 @@
-#ifndef PLAYER_GAME_OBJECT_H_
-#define PLAYER_GAME_OBJECT_H_
-
+#pragma once
 #include "game_object.h"
+#include "powerup.h"
 
 namespace game {
 
@@ -16,8 +15,12 @@ namespace game {
             //inherited virtual functions
             bool ValidCollision(GameObject* other_game_object, double deltatime);
             bool HandleCollision(GameObject* other_game_object, double deltatime);
+            //getters
+            inline PUpType GetPowerUp(void) { return power_up_; }
+            //setters
+            inline void SetPowerUp(PUpType type) { power_up_ = type; }
+        private:
+            PUpType power_up_;
     }; // class PlayerGameObject
 
 } // namespace game
-
-#endif // PLAYER_GAME_OBJECT_H_

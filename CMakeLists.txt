@@ -16,6 +16,9 @@ set(HDRS
     enemy_game_object.h
     asteroid.h
     tile.h
+    bullet.h
+    powerup.h
+    shield.h
 )
  
 set(SRCS
@@ -29,6 +32,9 @@ set(SRCS
     enemy_game_object.cpp
     asteroid.cpp
     tile.cpp
+    bullet.cpp
+    powerup.cpp
+    shield.cpp
     vertex_shader.glsl
     fragment_shader.glsl
 )

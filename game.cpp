@@ -1,5 +1,7 @@
 
 #include "game.h"
+#include "game_object.h"
+#include "collision.h"
 namespace game {
 
 // Some configuration constants
@@ -74,6 +76,7 @@ void Game::Init(void)
 
     max_x_ = 10.0;
     min_x_ = -10.0;
+    current_time_ = 0.0;
 }
 
 
@@ -93,11 +96,17 @@ void Game::Setup(void)
 
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
-    game_objects_.push_back(new PlayerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[0], size_));
+    player_ = new PlayerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[0], size_);
+    game_objects_.push_back(player_);
 
     // Setup other objects
-    game_objects_.push_back(new Asteroid(glm::vec3(-1.0f, 1.0f, 0.0f), tex_[1], size_, tex_[4]));
+    game_objects_.push_back(new Asteroid(glm::vec3(-1.0f, 1.0f, 0.0f), tex_[2], size_, tex_[4]));
     game_objects_.push_back(new Asteroid(glm::vec3(1.0f, -0.5f, 0.0f), tex_[2], size_, tex_[4]));
+
+
+    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 5.0f, 0.0f), tex_[5], size_, shield_type));
+    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
+
 
     //game_objects_.push_back(new PowerUp(glm::vec3(1.0f, -0.5f, 0.0f), tex_[5], size_));
 
@@ -232,12 +241,14 @@ void Game::SetAllTextures(void)
     // Load all textures that we will need
     glGenTextures(NUM_TEXTURES, tex_);
     SetTexture(tex_[0], (resources_directory_g+std::string("/textures/spacecraft.png")).c_str());
-    SetTexture(tex_[1], (resources_directory_g+std::string("/textures/asteroid.png")).c_str());
+    SetTexture(tex_[1], (resources_directory_g+std::string("/textures/shieldedspacecraft.png")).c_str());
     SetTexture(tex_[2], (resources_directory_g+std::string("/textures/asteroid.png")).c_str());
     SetTexture(tex_[3], (resources_directory_g+std::string("/textures/space.png")).c_str());
     SetTexture(tex_[4], (resources_directory_g + std::string("/textures/explosion.png")).c_str());
     SetTexture(tex_[5], (resources_directory_g + std::string("/textures/powerup-shield.png")).c_str());
-
+    SetTexture(tex_[6], (resources_directory_g + std::string("/textures/laser.png")).c_str());
+    SetTexture(tex_[7], (resources_directory_g + std::string("/textures/enemy_beam.png")).c_str());
+    SetTexture(tex_[8], (resources_directory_g + std::string("/textures/spr_shield.png")).c_str());
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -245,13 +256,12 @@ void Game::SetAllTextures(void)
 void Game::Controls(void)
 {
     // Get player game object
-    GameObject *player = game_objects_[0];
-    glm::vec3 curpos = player->GetPosition();
-    float currot = player->GetRotation();
+    glm::vec3 curpos = player_->GetPosition();
+    float currot = player_->GetRotation();
 
     // Check for player input and make changes accordingly
     if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
-        float angle = player->GetRotation();
+        float angle = player_->GetRotation();
 
         if (angle < 270)
         {
@@ -266,7 +276,7 @@ void Game::Controls(void)
         float y = sin(angle * (3.14159265 / 180)) * 0.03;
 
 
-        glm::vec3 v = player->GetVelocity();
+        glm::vec3 v = player_->GetVelocity();
 
         glm::vec3 max_v = glm::vec3(1.500, 1.500, 0.0f);
 
@@ -282,10 +292,10 @@ void Game::Controls(void)
             newVelocity.y = max_v.y;
         }
 
-        player->SetVelocity(newVelocity);
+        player_->SetVelocity(newVelocity);
     }
     if (glfwGetKey(window_, GLFW_KEY_S) == GLFW_PRESS) {
-        float angle = player->GetRotation();
+        float angle = player_->GetRotation();
 
         if (angle < 270)
         {
@@ -298,7 +308,7 @@ void Game::Controls(void)
         float x = cos(angle * (3.14159265 / 180)) * -0.03;
         float y = sin(angle * (3.14159265 / 180)) * -0.03;
 
-        glm::vec3 v = player->GetVelocity();
+        glm::vec3 v = player_->GetVelocity();
 
         glm::vec3 min_v = glm::vec3(-1.500, -1.500, 0.0f);
 
@@ -314,32 +324,46 @@ void Game::Controls(void)
             newVelocity.y = min_v.y;
         }
 
-        player->SetVelocity(newVelocity);
-        //player->SetPosition(glm::vec3(curpos.x + x, curpos.y + y, 0.0f));
+        player_->SetVelocity(newVelocity);
+        //player_->SetPosition(glm::vec3(curpos.x + x, curpos.y + y, 0.0f));
     }
     if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) 
     {
-        player->SetRotation(currot - 1);
+        player_->SetRotation(currot - 1);
     }
     if (glfwGetKey(window_, GLFW_KEY_A) == GLFW_PRESS) 
     {
-        player->SetRotation(currot + 1);
+        player_->SetRotation(currot + 1);
     }
     if (glfwGetKey(window_, GLFW_KEY_Q) == GLFW_PRESS) {
         glfwSetWindowShouldClose(window_, true);
+    }
+    if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        if (current_time_ > cool_down_) {
+            Bullet* bullet = new Bullet(player_->GetPosition(), tex_[6], size_, player);
+            bullet->SetRotation(player_->GetRotation()); // Orient bullet with direction it is going
+            bullet->SetScale(0.15);
+            // Add bullet at the end of list but before background
+            game_objects_.insert(game_objects_.end() - 1, bullet);
+            // Add bullet at the beginning but after player
+            //game_objects_.insert(game_objects_.begin()+1, bullet);
+
+            // Set cooldown period in seconds
+            cool_down_ = current_time_ + 0.5f;
+        }
+
     }
 }
 
 
 void Game::Update(double delta_time)
 {
-
+    current_time_ += delta_time;
     // Handle user input
     Controls();
-
-    GameObject* player = game_objects_[0];
-
-    UpdateTiles(player);
+    //check for newly acquired powerups and add them to game_objects_
+    PowerUps(delta_time);
+    UpdateTiles();
 
     // Update and render all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
@@ -353,8 +377,10 @@ void Game::Update(double delta_time)
         // Check for collision with other game objects
         // Render game object
         current_game_object->Render(shader_);
+        //remove object if it is out of health
+        GetDeadObjects(current_game_object, &game_objects_, i);
     }
-
+    //Tile Loop
     for (int i = 0; i < tile_map_.size(); i++)
     {
         GameObject* current_tile = tile_map_[i];
@@ -362,10 +388,18 @@ void Game::Update(double delta_time)
         current_tile->Render(shader_);
     }
 }
+void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i) {
+    if (current_game_object->GetDead()) {
+        if (current_game_object->GetName() == player) {
+            game_over_ = true;
+        }
+        (*game_objects_).erase((*game_objects_).begin() + i);
+    }
+}
 
-void Game::UpdateTiles(GameObject* player)
+void Game::UpdateTiles()
 {
-    glm::vec3 pos = player->GetPosition();
+    glm::vec3 pos = player_->GetPosition();
 
 
     if (pos.y >= max_y_)
@@ -427,6 +461,11 @@ void Game::UpdateTiles(GameObject* player)
 
         max_x_ = max_x_ - 10;
         min_x_ = min_x_ - 10;
+    }
+}
+void Game::PowerUps(double delta_time) {
+    if (player_->GetPowerUp() == shield_type) {
+        player_->SetTexture(tex_[1]);
     }
 }
        
