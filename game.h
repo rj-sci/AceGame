@@ -18,6 +18,7 @@
 #include "bullet.h"
 #include "powerup.h"
 #include "shield.h"
+#include "missile.h"
 
 namespace game {
 
@@ -50,7 +51,7 @@ namespace game {
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 9
+#define NUM_TEXTURES 12
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
@@ -91,6 +92,8 @@ namespace game {
 
             int max_x_;
             int min_x_;
+
+            GameObject* camera_target_;
 
     }; // class Game
 

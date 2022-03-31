@@ -5,7 +5,7 @@
 
 namespace game {
 
-GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable, float radius, Name name) 
+GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable, float radius) 
 {
 
     // Initialize all attributes
@@ -17,7 +17,7 @@ GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elem
     collidable_ = collidable;
     radius_ = radius; 
     rotation_ = 0.0f;
-    name_ = name;
+    //name_ = name;
     dead_ = false;
 }
 

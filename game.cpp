@@ -2,6 +2,7 @@
 #include "game.h"
 #include "game_object.h"
 #include "collision.h"
+#include "saucer_game_object.h"
 namespace game {
 
 // Some configuration constants
@@ -96,16 +97,26 @@ void Game::Setup(void)
 
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
-    player_ = new PlayerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[0], size_);
+    /*
+    * Riley: 
+    * Added textures array just cause player needs more than one (default, shielded, slightly shielded, damaged)
+    */
+
+    GLuint playertexs[2];
+    playertexs[0] = tex_[0];
+    playertexs[1] = tex_[1];
+    player_ = new PlayerGameObject(glm::vec3(0.0f, -5.0f, 0.0f), playertexs, size_);
     game_objects_.push_back(player_);
 
-    // Setup other objects
-    game_objects_.push_back(new Asteroid(glm::vec3(-1.0f, 1.0f, 0.0f), tex_[2], size_, tex_[4]));
-    game_objects_.push_back(new Asteroid(glm::vec3(1.0f, -0.5f, 0.0f), tex_[2], size_, tex_[4]));
 
+    // Setup other objects
+    //game_objects_.push_back(new Asteroid(glm::vec3(-1.0f, 1.0f, 0.0f), tex_[2], size_, tex_[4]));
+    //game_objects_.push_back(new Asteroid(glm::vec3(1.0f, -0.5f, 0.0f), tex_[2], size_, tex_[4]));
 
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 5.0f, 0.0f), tex_[5], size_, shield_type));
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
+
+    game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
 
 
     //game_objects_.push_back(new PowerUp(glm::vec3(1.0f, -0.5f, 0.0f), tex_[5], size_));
@@ -138,8 +149,7 @@ void Game::MainLoop(void)
 
         // Set view to zoom out, centered by default at 0,0
         float cameraZoom = 0.25f;
-        GameObject* player = game_objects_[0];
-
+        GameObject* player = player_;
         glm::vec3 player_position = player->GetPosition();
         glm::vec3 cameraPosition = glm::vec3(player_position.x * 0.25, player_position.y * 0.25, 0.0f);
 
@@ -241,14 +251,17 @@ void Game::SetAllTextures(void)
     // Load all textures that we will need
     glGenTextures(NUM_TEXTURES, tex_);
     SetTexture(tex_[0], (resources_directory_g+std::string("/textures/spacecraft.png")).c_str());
-    SetTexture(tex_[1], (resources_directory_g+std::string("/textures/shieldedspacecraft.png")).c_str());
+    SetTexture(tex_[1], (resources_directory_g+std::string("/textures/shielded_spacecraft.png")).c_str());
     SetTexture(tex_[2], (resources_directory_g+std::string("/textures/asteroid.png")).c_str());
     SetTexture(tex_[3], (resources_directory_g+std::string("/textures/space.png")).c_str());
     SetTexture(tex_[4], (resources_directory_g + std::string("/textures/explosion.png")).c_str());
     SetTexture(tex_[5], (resources_directory_g + std::string("/textures/powerup-shield.png")).c_str());
     SetTexture(tex_[6], (resources_directory_g + std::string("/textures/laser.png")).c_str());
-    SetTexture(tex_[7], (resources_directory_g + std::string("/textures/enemy_beam.png")).c_str());
+    SetTexture(tex_[7], (resources_directory_g + std::string("/textures/enemy_bullet.png")).c_str());
     SetTexture(tex_[8], (resources_directory_g + std::string("/textures/spr_shield.png")).c_str());
+    SetTexture(tex_[9], (resources_directory_g + std::string("/textures/ufo.png")).c_str());
+    SetTexture(tex_[10], (resources_directory_g + std::string("/textures/enemy_laser.png")).c_str());
+    SetTexture(tex_[11], (resources_directory_g + std::string("/textures/missile.png")).c_str());
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -340,7 +353,7 @@ void Game::Controls(void)
     }
     if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS) {
         if (current_time_ > cool_down_) {
-            Bullet* bullet = new Bullet(player_->GetPosition(), tex_[6], size_, player);
+            Bullet* bullet = new Bullet(player_->GetPosition(), tex_[6], size_, player, current_time_);
             bullet->SetRotation(player_->GetRotation()); // Orient bullet with direction it is going
             bullet->SetScale(0.15);
             // Add bullet at the end of list but before background
@@ -353,6 +366,19 @@ void Game::Controls(void)
         }
 
     }
+    if (glfwGetKey(window_, GLFW_KEY_Z) == GLFW_PRESS) {
+        if (current_time_ > cool_down_ && player_->GetNumMissiles() > 0) {
+            Missile* missile = new Missile(player_->GetPosition(), tex_[11], size_, current_time_);
+            missile->SetRotation(player_->GetRotation()); // Orient bullet with direction it is going
+            missile->SetScale(0.5);
+            game_objects_.insert(game_objects_.end() - 1, missile);
+
+            cool_down_ = current_time_ + 0.5f;
+
+            player_->SetNumMissiles(player_->GetNumMissiles() - 1);
+        }
+    }
+    
 }
 
 
@@ -362,7 +388,6 @@ void Game::Update(double delta_time)
     // Handle user input
     Controls();
     //check for newly acquired powerups and add them to game_objects_
-    PowerUps(delta_time);
     UpdateTiles();
 
     // Update and render all game objects
@@ -373,6 +398,12 @@ void Game::Update(double delta_time)
         current_game_object->Update(delta_time);
         if (current_game_object->GetCollidable()) {
             Collision::FindCollisions(i, &game_objects_, current_game_object, delta_time);
+        }
+
+        if (current_game_object->GetName() == bullet)
+        {
+            current_game_object->CheckLife(current_time_);
+
         }
         // Check for collision with other game objects
         // Render game object
@@ -461,11 +492,6 @@ void Game::UpdateTiles()
 
         max_x_ = max_x_ - 10;
         min_x_ = min_x_ - 10;
-    }
-}
-void Game::PowerUps(double delta_time) {
-    if (player_->GetPowerUp() == shield_type) {
-        player_->SetTexture(tex_[1]);
     }
 }
        

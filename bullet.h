@@ -9,13 +9,11 @@ namespace game {
     class Bullet : public GameObject {
 
     public:
-        Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer);
-
-        // Update function for moving the player object around
+        Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer, double spawnTime);
         void Update(double delta_time) override;
-
         bool ValidCollision(GameObject* other_game_object, double deltatime);
         bool HandleCollision(GameObject* other_game_object, double deltatime);
+        void CheckLife(double delta_time) override;
 
     private:
         // Initial position of the ray
@@ -28,6 +26,8 @@ namespace game {
         // Time of the previous frame
         float last_t_;
         Name firer_;
+
+        float spawn_t_;
 
     }; // class Bullet
 
