@@ -4,6 +4,7 @@
 #include "collision.h"
 #include "saucer_game_object.h"
 #include "particle_system.h"
+#include "alien_game_object.h"
 namespace game {
 
 // Some configuration constants
@@ -62,10 +63,13 @@ void Game::Init(void)
     size_ = CreateSprite();
 
     //initialize particle shader
+
     particle_shader_.Init((resources_directory_g + std::string("/particle_vertex_shader.glsl")).c_str(), (resources_directory_g + std::string("/particle_fragment_shader.glsl")).c_str());
     particle_shader_.CreateParticles();
+    particle_shader_.Enable();
+    particle_shader_.SetParticleAttributes();
 
-    // Initialize shader
+    // Initialize sprite shader
     sprite_shader_.Init((resources_directory_g+std::string("/vertex_shader.glsl")).c_str(), (resources_directory_g+std::string("/fragment_shader.glsl")).c_str());
     sprite_shader_.CreateSprite();
     sprite_shader_.Enable();
@@ -124,28 +128,25 @@ void Game::Setup(void)
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
 
     game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
-
-    ParticleSystem* particles = new ParticleSystem(glm::vec3(0.0f, -0.5f, 0.0f), tex_[12], size_, player_);
+    game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[14], size_, player_, true, 0.5f, enemy));
+    ParticleSystem* particles = new ParticleSystem(glm::vec3(0.0f, -0.5f, 0.0f), tex_[0], size_, player_);
     particles->SetScale(0.2);
-   // game_objects_.push_back(particles);
-
-
-    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 5.0f, 0.0f), tex_[5], size_, shield_type));
-    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
-
+    //game_objects_.push_back(particles);
 
     //game_objects_.push_back(new PowerUp(glm::vec3(1.0f, -0.5f, 0.0f), tex_[5], size_));
 
     // Setup background
-
+    
     for (int i = -10; i <= 10; i += 10)
     {
         for (int j = -10; j <= 10; j += 10)
         {
-            tile_map_.push_back(new GameObject(glm::vec3(i, j, 0.0f), tex_[3], size_, false, 0.5f));
+            tile_map_.push_back(new Tile(glm::vec3(i, j, 0.0f), tex_[3], size_));
             tile_map_[tile_map_.size() - 1]->SetScale(10.0);
         }
     }
+    
+    
 }
 
 
@@ -280,6 +281,7 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[11], (resources_directory_g + std::string("/textures/missile.png")).c_str());
     SetTexture(tex_[12], (resources_directory_g + std::string("/textures/greenorb.png")).c_str());
     SetTexture(tex_[13], (resources_directory_g + std::string("/textures/explosion.png")).c_str());
+    SetTexture(tex_[14], (resources_directory_g + std::string("/textures/alien.png")).c_str());
 
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
@@ -427,10 +429,16 @@ void Game::Update(double delta_time)
         // Render game object (check if its a particle system)
         ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
         if (p != nullptr) {
+            //particle_shader_.SetParticleAttributes();
+            //sprite_shader_.Disable();
             current_game_object->Render(particle_shader_, current_time_);
+            //sprite_shader_.Enable();
         }
         else {
+           //sprite_shader_.SetSpriteAttributes();
+            //particle_shader_.Disable();
             current_game_object->Render(sprite_shader_, current_time_);
+            //particle_shader_.Enable();
         }
         //remove object if it is out of health
         GetDeadObjects(current_game_object, &game_objects_, i);

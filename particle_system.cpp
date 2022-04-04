@@ -19,7 +19,7 @@ namespace game {
 
 
     void ParticleSystem::Render(Shader& shader, double current_time) {
-
+        glUseProgram(shader.GetShaderID());
         // Bind the particle texture
         glBindTexture(GL_TEXTURE_2D, texture_);
 

@@ -49,7 +49,7 @@ namespace game {
 
 	void Missile::CheckLife(double delta_time)
 	{
-		if (delta_time - spawn_t_ >= 2.0f)
+		if (delta_time - spawn_t_ >= 3.5f)
 		{
 			dead_ = true;
 		}

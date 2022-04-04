@@ -23,6 +23,7 @@ set(HDRS
     laser_game_object.h
     missile.h
     particle_system.h
+    alien_game_object.h
 )
  
 set(SRCS
@@ -47,6 +48,7 @@ set(SRCS
     particle_system.cpp
     particle_vertex_shader.glsl
     particle_fragment_shader.glsl
+    alien_game_object.cpp
 
 )
 

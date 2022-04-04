@@ -19,6 +19,7 @@ namespace game {
 	void Bullet::Update(double delta_time) {
 
 		// Call the parent's update method to move the object in standard way, if desired
+
 		double radians = ((2 * 3.1415926536 / 360) * (rotation_ + 90));
 		velocity_[0] = cos(radians) * BULLET_SPEED;
 		velocity_[1] = sin(radians) * BULLET_SPEED;
