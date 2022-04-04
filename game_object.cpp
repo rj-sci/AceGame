@@ -1,10 +1,11 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 #include "game_object.h"
+#include "collision.h"
 
 namespace game {
 
-GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements,bool collidable, double radius) 
+GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable, float radius) 
 {
 
     // Initialize all attributes
@@ -14,8 +15,10 @@ GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elem
     num_elements_ = num_elements;
     texture_ = texture;
     collidable_ = collidable;
-    radius = radius_;
-    rotation_ = 0;
+    radius_ = radius; 
+    rotation_ = 0.0f;
+    //name_ = name;
+    dead_ = false;
 }
 
 
@@ -26,7 +29,7 @@ void GameObject::Update(double delta_time) {
 }
 
 
-void GameObject::Render(Shader &shader) {
+void GameObject::Render(Shader &shader, double current_time) {
 
     // Bind the entity's texture
     glBindTexture(GL_TEXTURE_2D, texture_);
@@ -41,8 +44,6 @@ void GameObject::Render(Shader &shader) {
 
     // Setup the transformation matrix for the shader
     glm::mat4 transformation_matrix =  translation_matrix * rotation_matrix  * scaling_matrix;
-
-    // TODO: Add other types of transformations
 
     // Set the transformation matrix in the shader
     shader.SetUniformMat4("transformation_matrix", transformation_matrix);

@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 
 # Name of project
-set(PROJ_NAME GameDemo)
+set(PROJ_NAME RileyBranch)
 project(${PROJ_NAME})
 
 # Specify project files: header files and source files
@@ -12,6 +12,17 @@ set(HDRS
     player_game_object.h
     shader.h
     collision.h
+    defs.h
+    enemy_game_object.h
+    asteroid.h
+    tile.h
+    bullet.h
+    powerup.h
+    shield.h
+    saucer_game_object.h
+    laser_game_object.h
+    missile.h
+    particle_system.h
 )
  
 set(SRCS
@@ -22,8 +33,21 @@ set(SRCS
     main.cpp
     player_game_object.cpp
     shader.cpp
+    enemy_game_object.cpp
+    asteroid.cpp
+    tile.cpp
+    bullet.cpp
+    powerup.cpp
+    shield.cpp
     vertex_shader.glsl
     fragment_shader.glsl
+    saucer_game_object.cpp
+    laser_game_object.cpp
+    missile.cpp
+    particle_system.cpp
+    particle_vertex_shader.glsl
+    particle_fragment_shader.glsl
+
 )
 
 # Add path name to configuration file
