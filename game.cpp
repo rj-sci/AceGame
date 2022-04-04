@@ -3,6 +3,7 @@
 #include "game_object.h"
 #include "collision.h"
 #include "saucer_game_object.h"
+#include "alien_game_object.h"
 namespace game {
 
 // Some configuration constants
@@ -109,7 +110,8 @@ void Game::Setup(void)
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 5.0f, 0.0f), tex_[5], size_, shield_type));
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
 
-    game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
+    //game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
+    game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[11], size_, player_, true, 0.5f, enemy));
 
 
     //game_objects_.push_back(new PowerUp(glm::vec3(1.0f, -0.5f, 0.0f), tex_[5], size_));
@@ -254,6 +256,7 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[8], (resources_directory_g + std::string("/textures/spr_shield.png")).c_str());
     SetTexture(tex_[9], (resources_directory_g + std::string("/textures/ufo.png")).c_str());
     SetTexture(tex_[10], (resources_directory_g + std::string("/textures/enemy_laser.png")).c_str());
+    SetTexture(tex_[11], (resources_directory_g + std::string("/textures/alien.png")).c_str());
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 

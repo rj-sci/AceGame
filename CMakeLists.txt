@@ -21,6 +21,7 @@ set(HDRS
     shield.h
     saucer_game_object.h
     laser_game_object.h
+    alien_game_object.h
 )
  
 set(SRCS
@@ -41,6 +42,7 @@ set(SRCS
     fragment_shader.glsl
     saucer_game_object.cpp
     laser_game_object.cpp
+    alien_game_object.cpp
 )
 
 # Add path name to configuration file
