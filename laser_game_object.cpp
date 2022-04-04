@@ -33,7 +33,7 @@ namespace game
 		}
 	}
 
-	void LaserGameObject::Render(Shader& shader)
+	void LaserGameObject::Render(Shader& shader, double current_time)
 	{
 		// Bind the entity's texture
 		glBindTexture(GL_TEXTURE_2D, texture_);

@@ -29,7 +29,7 @@ void GameObject::Update(double delta_time) {
 }
 
 
-void GameObject::Render(Shader &shader) {
+void GameObject::Render(Shader &shader, double current_time) {
 
     // Bind the entity's texture
     glBindTexture(GL_TEXTURE_2D, texture_);

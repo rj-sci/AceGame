@@ -16,7 +16,7 @@ namespace game {
     bool PowerUp::ValidCollision(GameObject* other_game_object, double deltatime) {
         switch (other_game_object->GetName()) {
         case player:
-            return Collision::CicleCircleCollision(other_game_object, position_, radius_);
+            return Collision::CircleCircleCollision(other_game_object, position_, radius_);
             break;
         }
     }

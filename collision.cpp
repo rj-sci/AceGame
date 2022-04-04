@@ -19,7 +19,7 @@ bool game::Collision::FindCollisions(int i, std::vector<GameObject*>* game_objec
 	}
 	return 0;
 }
-bool game::Collision::CicleCircleCollision(game::GameObject* other_game_object, glm::vec3 position, float radius) {
+bool game::Collision::CircleCircleCollision(game::GameObject* other_game_object, glm::vec3 position, float radius) {
 	float distance = glm::length(position - other_game_object->GetPosition());
 	float radii = other_game_object->GetRadius() + radius;
 	if (distance < radii) {

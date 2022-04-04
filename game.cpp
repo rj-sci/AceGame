@@ -3,6 +3,7 @@
 #include "game_object.h"
 #include "collision.h"
 #include "saucer_game_object.h"
+#include "particle_system.h"
 namespace game {
 
 // Some configuration constants
@@ -60,9 +61,15 @@ void Game::Init(void)
     // Set up square geometry
     size_ = CreateSprite();
 
+    //initialize particle shader
+    particle_shader_.Init((resources_directory_g + std::string("/particle_vertex_shader.glsl")).c_str(), (resources_directory_g + std::string("/particle_fragment_shader.glsl")).c_str());
+    particle_shader_.CreateParticles();
+
     // Initialize shader
-    shader_.Init((resources_directory_g+std::string("/vertex_shader.glsl")).c_str(), (resources_directory_g+std::string("/fragment_shader.glsl")).c_str());
-    shader_.Enable();
+    sprite_shader_.Init((resources_directory_g+std::string("/vertex_shader.glsl")).c_str(), (resources_directory_g+std::string("/fragment_shader.glsl")).c_str());
+    sprite_shader_.CreateSprite();
+    sprite_shader_.Enable();
+    sprite_shader_.SetSpriteAttributes();
 
     // Set up z-buffer for rendering
     glEnable(GL_DEPTH_TEST);
@@ -118,6 +125,9 @@ void Game::Setup(void)
 
     game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
 
+    ParticleSystem* particles = new ParticleSystem(glm::vec3(0.0f, -0.5f, 0.0f), tex_[12], size_, player_);
+    particles->SetScale(0.2);
+   // game_objects_.push_back(particles);
 
     //game_objects_.push_back(new PowerUp(glm::vec3(1.0f, -0.5f, 0.0f), tex_[5], size_));
 
@@ -155,7 +165,8 @@ void Game::MainLoop(void)
 
         glm::mat4 translation_matrix = glm::translate(glm::mat4(1.0f), -cameraPosition);
         glm::mat4 view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
-        shader_.SetUniformMat4("view_matrix", view_matrix);
+        sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
+        particle_shader_.SetUniformMat4("view_matrix", view_matrix);
 
         // Calculate delta time
         double currentTime = glfwGetTime();
@@ -262,6 +273,9 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[9], (resources_directory_g + std::string("/textures/ufo.png")).c_str());
     SetTexture(tex_[10], (resources_directory_g + std::string("/textures/enemy_laser.png")).c_str());
     SetTexture(tex_[11], (resources_directory_g + std::string("/textures/missile.png")).c_str());
+    SetTexture(tex_[12], (resources_directory_g + std::string("/textures/greenorb.png")).c_str());
+    SetTexture(tex_[13], (resources_directory_g + std::string("/textures/explosion.png")).c_str());
+
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -368,7 +382,7 @@ void Game::Controls(void)
     }
     if (glfwGetKey(window_, GLFW_KEY_Z) == GLFW_PRESS) {
         if (current_time_ > cool_down_ && player_->GetNumMissiles() > 0) {
-            Missile* missile = new Missile(player_->GetPosition(), tex_[11], size_, current_time_);
+            Missile* missile = new Missile(player_->GetPosition(), tex_[11], size_, current_time_, tex_[13]);
             missile->SetRotation(player_->GetRotation()); // Orient bullet with direction it is going
             missile->SetScale(0.5);
             game_objects_.insert(game_objects_.end() - 1, missile);
@@ -400,14 +414,19 @@ void Game::Update(double delta_time)
             Collision::FindCollisions(i, &game_objects_, current_game_object, delta_time);
         }
 
-        if (current_game_object->GetName() == bullet)
+        if (current_game_object->GetName() == bullet || current_game_object->GetName() == missile)
         {
             current_game_object->CheckLife(current_time_);
 
         }
-        // Check for collision with other game objects
-        // Render game object
-        current_game_object->Render(shader_);
+        // Render game object (check if its a particle system)
+        ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
+        if (p != nullptr) {
+            current_game_object->Render(particle_shader_, current_time_);
+        }
+        else {
+            current_game_object->Render(sprite_shader_, current_time_);
+        }
         //remove object if it is out of health
         GetDeadObjects(current_game_object, &game_objects_, i);
     }
@@ -416,8 +435,9 @@ void Game::Update(double delta_time)
     {
         GameObject* current_tile = tile_map_[i];
         current_tile->Update(delta_time);
-        current_tile->Render(shader_);
+        current_tile->Render(sprite_shader_, current_time_);
     }
+
 }
 void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i) {
     if (current_game_object->GetDead()) {

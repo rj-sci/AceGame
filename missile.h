@@ -10,7 +10,7 @@ namespace game
 	class Missile : public GameObject
 	{
 	public:
-		Missile(const glm::vec3& position, GLuint texture, GLint num_elements, double spawntime);
+		Missile(const glm::vec3& position, GLuint texture, GLint num_elements, double spawntime, GLuint explo);
 		void Update(double delta_time);
 		bool ValidCollision(GameObject* other_game_object, double deltatime);
 		bool HandleCollision(GameObject* other_game_object, double deltatime);
@@ -22,6 +22,8 @@ namespace game
 		float current_t_;
 		// Time of the previous frame
 		float last_t_;
+		GLuint explosion_;
+		bool exploded_;
 	};
 
 

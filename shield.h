@@ -12,8 +12,6 @@ namespace game {
 
         void Update(double delta_time) override;
 
-        void Render(Shader& shader);
-
         //inherited virtual member functions
         bool ValidCollision(GameObject* other_game_object, double deltatime);
         bool HandleCollision(GameObject* other_game_object, double deltatime);

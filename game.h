@@ -45,13 +45,15 @@ namespace game {
             GLFWwindow *window_;
 
             // Shader for rendering the scene
-            Shader shader_;
+            Shader sprite_shader_;
+            //Shader for rendering particles
+            Shader particle_shader_;
 
             // Size of geometry to be rendered
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 12
+#define NUM_TEXTURES 14
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects

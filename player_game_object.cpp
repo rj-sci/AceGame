@@ -68,17 +68,12 @@ void PlayerGameObject::Update(double delta_time) {
 	GameObject::Update(delta_time);
 }
 
-void PlayerGameObject::Render(Shader& shader)
-{
-
-	GameObject::Render(shader);
-}
 bool PlayerGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {
 	switch (other_game_object->GetName()) {
 		case enemy:
-			return Collision::CicleCircleCollision(other_game_object, position_, radius_);
+			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 		case powerup:
-			return Collision::CicleCircleCollision(other_game_object, position_, radius_);
+			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 		//Leave laser-player to be handled by Laser class, difficult to call ray-circle here
 		}
 }
