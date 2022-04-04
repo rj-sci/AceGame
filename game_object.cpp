@@ -5,7 +5,7 @@
 
 namespace game {
 
-GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable, double radius) 
+GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable, float radius) 
 {
 
     // Initialize all attributes
@@ -15,8 +15,10 @@ GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elem
     num_elements_ = num_elements;
     texture_ = texture;
     collidable_ = collidable;
-    radius = radius_; 
+    radius_ = radius; 
     rotation_ = 0.0f;
+    //name_ = name;
+    dead_ = false;
 }
 
 
@@ -27,7 +29,7 @@ void GameObject::Update(double delta_time) {
 }
 
 
-void GameObject::Render(Shader &shader) {
+void GameObject::Render(Shader &shader, double current_time) {
 
     // Bind the entity's texture
     glBindTexture(GL_TEXTURE_2D, texture_);

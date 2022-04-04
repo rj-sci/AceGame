@@ -6,7 +6,7 @@
 namespace game {
 
     Shield::Shield(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* parent)
-        : GameObject(position, texture, num_elements, true, 0.5 , shield) {
+        : GameObject(position, texture, num_elements, true, 0.5) {
         parent_ = parent;
         scale_ = SHIELD_SCALE;
     }
@@ -30,5 +30,4 @@ namespace game {
     bool Shield::HandleCollision(GameObject* other_game_object, double deltatime) {
         return true;
     }
-
 } // namespace game

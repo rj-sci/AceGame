@@ -19,6 +19,10 @@ set(HDRS
     bullet.h
     powerup.h
     shield.h
+    saucer_game_object.h
+    laser_game_object.h
+    missile.h
+    particle_system.h
 )
  
 set(SRCS
@@ -37,6 +41,13 @@ set(SRCS
     shield.cpp
     vertex_shader.glsl
     fragment_shader.glsl
+    saucer_game_object.cpp
+    laser_game_object.cpp
+    missile.cpp
+    particle_system.cpp
+    particle_vertex_shader.glsl
+    particle_fragment_shader.glsl
+
 )
 
 # Add path name to configuration file

@@ -22,14 +22,15 @@ namespace game {
 
         public:
             // Constructor
-            GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable_, float radius, Name type);
+            GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable_, float radius);
 
             // Update the GameObject's state. Can be overriden for children
             virtual void Update(double delta_time);
 
             // Renders the GameObject using a shader
-            void Render(Shader &shader);
+            virtual void Render(Shader &shader, double current_time);
 
+            inline virtual void CheckLife(double delta_time) {  }
             // Getters
             inline glm::vec3& GetPosition(void) { return position_; }
             inline float GetScale(void) { return scale_; }
@@ -39,6 +40,7 @@ namespace game {
             inline float GetRotation(void) { return rotation_; }
             inline Name GetName(void) { return name_; }
             inline bool GetDead(void) { return dead_; }
+            inline glm::mat4 GetParentTransformation(void) { return parent_transformation_; }
 
             // Setters
             inline void SetPosition(const glm::vec3& position) { position_ = position; }
@@ -48,6 +50,7 @@ namespace game {
             inline void SetVelocity(const glm::vec3& velocity) { velocity_ = velocity; }
             inline void SetRadius(float radius) { radius_ = radius; }
             inline void SetDead(void) { dead_ = true; }
+            inline void SetParentTransformation(glm::mat4 p) { parent_transformation_ = p; }
             //Unimplemented virtual functions
                 //Collision
                 virtual bool ValidCollision(GameObject* other_game_object, double deltatime) = 0;
@@ -73,6 +76,10 @@ namespace game {
             enum Name name_;
             //NEW: bool death checker
             bool dead_;
+
+            glm::mat4 parent_transformation_;
+
+           
 
     }; // class GameObject
 

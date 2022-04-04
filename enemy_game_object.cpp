@@ -11,7 +11,7 @@ namespace game {
         It overrides GameObject's update method, so that you can check for input to change the velocity of the enemy
     */
     EnemyGameObject::EnemyGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GLuint dest_texture, Name name,int damage)
-        : GameObject(position, texture, num_elements, true, 0.25, name) {
+        : GameObject(position, texture, num_elements, true, 0.25) {
         acceleration_ = 0;
         dest_texture_ = dest_texture;
         dead_ = false;

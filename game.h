@@ -18,6 +18,7 @@
 #include "bullet.h"
 #include "powerup.h"
 #include "shield.h"
+#include "missile.h"
 
 namespace game {
 
@@ -44,13 +45,15 @@ namespace game {
             GLFWwindow *window_;
 
             // Shader for rendering the scene
-            Shader shader_;
+            Shader sprite_shader_;
+            //Shader for rendering particles
+            Shader particle_shader_;
 
             // Size of geometry to be rendered
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 9
+#define NUM_TEXTURES 14
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
@@ -62,8 +65,6 @@ namespace game {
             double cool_down_;
 
             bool game_over_;
-            std::vector<GameObject*> tile_map_;
-
             // Callback for when the window is resized
             static void ResizeCallback(GLFWwindow* window, int width, int height);
 
@@ -87,13 +88,14 @@ namespace game {
             void PowerUps(double delta_time);
             //Check for objects that should be removed from the world
             void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i);
-            void UpdateTiles(GameObject* player);
 
             int max_y_;
             int min_y_;
 
             int max_x_;
             int min_x_;
+
+            GameObject* camera_target_;
 
     }; // class Game
 
