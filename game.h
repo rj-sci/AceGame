@@ -62,6 +62,8 @@ namespace game {
             double cool_down_;
 
             bool game_over_;
+            std::vector<GameObject*> tile_map_;
+
             // Callback for when the window is resized
             static void ResizeCallback(GLFWwindow* window, int width, int height);
 
@@ -85,6 +87,7 @@ namespace game {
             void PowerUps(double delta_time);
             //Check for objects that should be removed from the world
             void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i);
+            void UpdateTiles(GameObject* player);
 
             int max_y_;
             int min_y_;

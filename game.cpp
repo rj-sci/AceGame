@@ -116,7 +116,7 @@ void Game::Setup(void)
     {
         for (int j = -10; j <= 10; j += 10)
         {
-            tile_map_.push_back(new Tile(glm::vec3(i, j, 0.0f), tex_[3], size_));
+            tile_map_.push_back(new GameObject(glm::vec3(i, j, 0.0f), tex_[3], size_, false, 0.5f));
             tile_map_[tile_map_.size() - 1]->SetScale(10.0);
         }
     }
@@ -365,6 +365,10 @@ void Game::Update(double delta_time)
     PowerUps(delta_time);
     UpdateTiles();
 
+    GameObject* player = game_objects_[0];
+
+    UpdateTiles(player);
+
     // Update and render all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
         // Get the current game object
@@ -466,6 +470,80 @@ void Game::UpdateTiles()
 void Game::PowerUps(double delta_time) {
     if (player_->GetPowerUp() == shield_type) {
         player_->SetTexture(tex_[1]);
+    }
+
+    for (int i = 0; i < tile_map_.size(); i++)
+    {
+        GameObject* current_tile = tile_map_[i];
+        current_tile->Update(delta_time);
+        current_tile->Render(shader_);
+    }
+}
+
+void Game::UpdateTiles(GameObject* player)
+{
+    glm::vec3 pos = player->GetPosition();
+
+
+    if (pos.y >= max_y_)
+    {
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+
+            glm::vec3 pos = current_tile->GetPosition();
+
+            current_tile->SetPosition(glm::vec3(pos.x, pos.y + 10.0f, 0.0f));
+        }
+
+        max_y_ = max_y_ + 10;
+        min_y_ = min_y_ + 10;
+    }
+
+
+    if (pos.y <= min_y_)
+    {
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+
+            glm::vec3 pos = current_tile->GetPosition();
+
+            current_tile->SetPosition(glm::vec3(pos.x, pos.y - 10.0f, 0.0f));
+        }
+
+        max_y_ = max_y_ - 10;
+        min_y_ = min_y_ - 10;
+    }
+
+    if (pos.x >= max_x_)
+    {
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+
+            glm::vec3 pos = current_tile->GetPosition();
+
+            current_tile->SetPosition(glm::vec3(pos.x + 10.0f, pos.y, 0.0f));
+        }
+
+        max_x_ = max_x_ + 10;
+        min_x_ = min_x_ + 10;
+    }
+
+    if (pos.x <= min_x_)
+    {
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+
+            glm::vec3 pos = current_tile->GetPosition();
+
+            current_tile->SetPosition(glm::vec3(pos.x - 10.0f, pos.y, 0.0f));
+        }
+
+        max_x_ = max_x_ - 10;
+        min_x_ = min_x_ - 10;
     }
 }
        
