@@ -111,7 +111,7 @@ void Game::Setup(void)
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
 
     //game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
-    game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[11], size_, player_, true, 0.5f, enemy));
+    game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[11], size_, player_, true, 0.5f, enemy, tex_[7]));
 
 
     //game_objects_.push_back(new PowerUp(glm::vec3(1.0f, -0.5f, 0.0f), tex_[5], size_));
@@ -379,6 +379,8 @@ void Game::Update(double delta_time)
         GameObject* current_game_object = game_objects_[i];
         // Update the current game object
         current_game_object->Update(delta_time);
+
+
         if (current_game_object->GetCollidable()) {
             Collision::FindCollisions(i, &game_objects_, current_game_object, delta_time);
         }
