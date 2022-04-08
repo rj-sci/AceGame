@@ -9,10 +9,13 @@ namespace game {
     class Bullet : public GameObject {
 
     public:
+        static float current_t;
         Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer, double spawnTime, GameObject* p = NULL);
 
         // Update function for moving the player object around
         void Update(double delta_time) override;
+
+        inline Name GetFirer() { return firer_; }
 
         bool ValidCollision(GameObject* other_game_object, double deltatime);
         bool HandleCollision(GameObject* other_game_object, double deltatime);
@@ -34,6 +37,7 @@ namespace game {
         float spawn_t_;
 
         GameObject* target_;
+        GameObject* creator_;
 
         double last_occurence_;
 

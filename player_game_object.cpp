@@ -1,5 +1,6 @@
 #include "player_game_object.h"
 #include "collision.h"
+#include "bullet.h"
 
 namespace game {
 
@@ -85,10 +86,19 @@ bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double del
 		case enemy:
 			dead_ = true;
 
+		case bullet:
+		{
+			Bullet* b = (Bullet*)other_game_object;
+			dead_ = true;
+		}
+			
+
 		case powerup:
 			//downcast, prett ew-ish but couldn't think of anything else
 			PowerUp* pwrup = (PowerUp*)other_game_object;
 			power_up_ = pwrup->GetType();
+
+		
 	}
 	return true;
 }

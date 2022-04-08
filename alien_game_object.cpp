@@ -37,7 +37,6 @@ namespace game {
     void AlienGameObject::Update(double delta_time)
     {
         CheckDistance();
-        std::cout << state_ << std::endl;
         if (state_ == false)
         {
             /*float x = cos(rotation_ * (3.14159265 / 180)) * 3.0f;
@@ -66,7 +65,7 @@ namespace game {
 
         if (state_)
         {
-            if (cool_down_ == -1.0f || glfwGetTime() - cool_down_ >= 0.5)
+            if (cool_down_ == -1.0f || glfwGetTime() - cool_down_ >= 1.0)
             {
                 cool_down_ = glfwGetTime();
 
