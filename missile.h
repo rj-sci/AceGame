@@ -5,6 +5,9 @@
 #include "game_object.h"
 #include "collision.h"
 
+#define MISSILE_SPEED 1.5
+
+
 namespace game
 {
 	class Missile : public GameObject

@@ -35,7 +35,6 @@ namespace game {
     void AlienGameObject::Update(double delta_time)
     {
         CheckDistance();
-        std::cout << state_ << std::endl;
         if (state_ == false)
         {
             /*float x = cos(rotation_ * (3.14159265 / 180)) * 3.0f;
@@ -69,6 +68,8 @@ namespace game {
             return Collision::CircleCircleCollision(other_game_object, position_, radius_);
             /*case bullet:
                 return Collision::CicleCircleCollision(other_game_object, position_, radius_);*/
+        default:
+            return false;
         }
     }
     bool AlienGameObject::HandleCollision(GameObject* other_game_object, double deltatime)

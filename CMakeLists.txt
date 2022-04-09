@@ -14,7 +14,6 @@ set(HDRS
     collision.h
     defs.h
     enemy_game_object.h
-    asteroid.h
     tile.h
     bullet.h
     powerup.h
@@ -24,6 +23,7 @@ set(HDRS
     missile.h
     particle_system.h
     alien_game_object.h
+    asteroid_game_object.h
 )
  
 set(SRCS
@@ -35,7 +35,6 @@ set(SRCS
     player_game_object.cpp
     shader.cpp
     enemy_game_object.cpp
-    asteroid.cpp
     tile.cpp
     bullet.cpp
     powerup.cpp
@@ -49,6 +48,7 @@ set(SRCS
     particle_vertex_shader.glsl
     particle_fragment_shader.glsl
     alien_game_object.cpp
+    asteroid_game_object.cpp
 
 )
 

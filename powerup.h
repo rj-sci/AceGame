@@ -9,6 +9,8 @@
 
 #include "player_game_object.h"
 
+#define POWERUP_SCALE 1
+
 namespace game {
 	class PowerUp : public GameObject {
 	public:

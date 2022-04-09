@@ -1,6 +1,7 @@
 #pragma once
 #include "game_object.h"
 
+#define SHIELD_SCALE 4
 namespace game {
 
     // Class that abstracts a shield around the player

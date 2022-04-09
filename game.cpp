@@ -89,6 +89,7 @@ void Game::Init(void)
     max_x_ = 10.0;
     min_x_ = -10.0;
     current_time_ = 0.0;
+    cool_down_ = 0;
 }
 
 
@@ -121,19 +122,15 @@ void Game::Setup(void)
 
 
     // Setup other objects
-    //game_objects_.push_back(new Asteroid(glm::vec3(-1.0f, 1.0f, 0.0f), tex_[2], size_, tex_[4]));
-    //game_objects_.push_back(new Asteroid(glm::vec3(1.0f, -0.5f, 0.0f), tex_[2], size_, tex_[4]));
 
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 5.0f, 0.0f), tex_[5], size_, shield_type));
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
 
     game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
     game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[14], size_, player_, true, 0.5f, enemy));
-    ParticleSystem* particles = new ParticleSystem(glm::vec3(0.0f, -0.5f, 0.0f), tex_[0], size_, player_);
-    particles->SetScale(0.2);
-    //game_objects_.push_back(particles);
 
-    //game_objects_.push_back(new PowerUp(glm::vec3(1.0f, -0.5f, 0.0f), tex_[5], size_));
+    game_objects_.push_back(new AsteroidGameObject(glm::vec3(5.0f, 0.0f, 0.0f), tex_[2], size_, player_->GetPosition()));
+
 
     // Setup background
     
@@ -145,6 +142,11 @@ void Game::Setup(void)
             tile_map_[tile_map_.size() - 1]->SetScale(10.0);
         }
     }
+    
+
+    ParticleSystem* particles = new ParticleSystem(glm::vec3(0.0f, -0.5f, 0.0f), tex_[12], size_, player_);
+    particles->SetScale(0.2);
+    game_objects_.push_back(particles);
     
     
 }
@@ -171,8 +173,6 @@ void Game::MainLoop(void)
 
         glm::mat4 translation_matrix = glm::translate(glm::mat4(1.0f), -cameraPosition);
         glm::mat4 view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
-        sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
-        particle_shader_.SetUniformMat4("view_matrix", view_matrix);
 
         // Calculate delta time
         double currentTime = glfwGetTime();
@@ -180,7 +180,7 @@ void Game::MainLoop(void)
         lastTime = currentTime;
 
         // Update the game
-        Update(deltaTime);
+        Update(deltaTime, view_matrix);
 
         // Push buffer drawn in the background onto the display
         glfwSwapBuffers(window_);
@@ -294,6 +294,9 @@ void Game::Controls(void)
     float currot = player_->GetRotation();
 
     // Check for player input and make changes accordingly
+
+    glm::vec3 max_v = glm::vec3(1.500, 1.500, 0.0f);
+    glm::vec3 min_v = glm::vec3(-1.500, -1.500, 0.0f);
     if (glfwGetKey(window_, GLFW_KEY_W) == GLFW_PRESS) {
         float angle = player_->GetRotation();
 
@@ -312,8 +315,6 @@ void Game::Controls(void)
 
         glm::vec3 v = player_->GetVelocity();
 
-        glm::vec3 max_v = glm::vec3(1.500, 1.500, 0.0f);
-
         glm::vec3 newVelocity = glm::vec3(v.x + x, v.y + y, 0.0f);
 
         if (newVelocity.x > max_v.x)
@@ -324,6 +325,15 @@ void Game::Controls(void)
         if (newVelocity.y > max_v.y)
         {
             newVelocity.y = max_v.y;
+        }
+        if (newVelocity.x < min_v.x)
+        {
+            newVelocity.x = min_v.x;
+        }
+
+        if (newVelocity.y < min_v.y)
+        {
+            newVelocity.y = min_v.y;
         }
 
         player_->SetVelocity(newVelocity);
@@ -344,9 +354,17 @@ void Game::Controls(void)
 
         glm::vec3 v = player_->GetVelocity();
 
-        glm::vec3 min_v = glm::vec3(-1.500, -1.500, 0.0f);
-
         glm::vec3 newVelocity = glm::vec3(v.x + x, v.y + y, 0.0f);
+
+        if (newVelocity.x > max_v.x)
+        {
+            newVelocity.x = max_v.x;
+        }
+
+        if (newVelocity.y > max_v.y)
+        {
+            newVelocity.y = max_v.y;
+        }
 
         if (newVelocity.x < min_v.x)
         {
@@ -359,8 +377,8 @@ void Game::Controls(void)
         }
 
         player_->SetVelocity(newVelocity);
-        //player_->SetPosition(glm::vec3(curpos.x + x, curpos.y + y, 0.0f));
     }
+
     if (glfwGetKey(window_, GLFW_KEY_D) == GLFW_PRESS) 
     {
         player_->SetRotation(currot - 1);
@@ -403,14 +421,22 @@ void Game::Controls(void)
 }
 
 
-void Game::Update(double delta_time)
+void Game::Update(double delta_time, glm::mat4 view_matrix)
 {
+
     current_time_ += delta_time;
     // Handle user input
     Controls();
     //check for newly acquired powerups and add them to game_objects_
     UpdateTiles();
-
+    //check if we should add a new enemy to the world
+    enemy_cooldown_ = current_time_ - last_time_;
+    int num = rand() % 3;
+    if(enemy_cooldown_  > 5 && num == 0){
+        std::cout << "Spawning new enemy\n";
+        SpawnEnemies();
+        last_time_ = current_time_;
+    }
     // Update and render all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
         // Get the current game object
@@ -429,27 +455,32 @@ void Game::Update(double delta_time)
         // Render game object (check if its a particle system)
         ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
         if (p != nullptr) {
-            //particle_shader_.SetParticleAttributes();
-            //sprite_shader_.Disable();
+            particle_shader_.Enable();
+            particle_shader_.SetUniformMat4("view_matrix", view_matrix);
+            particle_shader_.SetParticleAttributes();
             current_game_object->Render(particle_shader_, current_time_);
-            //sprite_shader_.Enable();
         }
         else {
-           //sprite_shader_.SetSpriteAttributes();
-            //particle_shader_.Disable();
+            sprite_shader_.Enable();
+            sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
+            sprite_shader_.SetSpriteAttributes();
             current_game_object->Render(sprite_shader_, current_time_);
-            //particle_shader_.Enable();
         }
         //remove object if it is out of health
         GetDeadObjects(current_game_object, &game_objects_, i);
     }
+
     //Tile Loop
+    sprite_shader_.Enable();
+    sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
+    sprite_shader_.SetSpriteAttributes();
     for (int i = 0; i < tile_map_.size(); i++)
     {
         GameObject* current_tile = tile_map_[i];
         current_tile->Update(delta_time);
         current_tile->Render(sprite_shader_, current_time_);
     }
+
 
 }
 void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i) {
@@ -525,6 +556,25 @@ void Game::UpdateTiles()
 
         max_x_ = max_x_ - 10;
         min_x_ = min_x_ - 10;
+    }
+}
+void Game::SpawnEnemies() {
+    int choice1 = rand() % 4;
+    glm::vec3 pos1 = glm::vec3(player_->GetPosition().x - 5, player_->GetPosition().y + 5, 0);
+    glm::vec3 pos2 = glm::vec3(player_->GetPosition().x + 5, player_->GetPosition().y + 5, 0);
+    glm::vec3 pos3 = glm::vec3(player_->GetPosition().x - 5, player_->GetPosition().y - 5, 0);
+    glm::vec3 pos4 = glm::vec3(player_->GetPosition().x + 5, player_->GetPosition().y - 5, 0);
+    glm::vec3 arr[4] = { pos1,pos2,pos3,pos4 };
+    int choice2 = rand() % 3;
+    switch (choice2) {
+        case 0:
+            game_objects_.push_back(new SaucerGameObject(arr[choice1], tex_[9], size_, player_, true, 1.0f, enemy));
+    
+        case 1:
+            game_objects_.push_back(new AlienGameObject(arr[choice1], tex_[14], size_, player_, true, 0.5f, enemy));
+
+        case 2:
+            game_objects_.push_back(new AsteroidGameObject(arr[choice1], tex_[2], size_, player_->GetPosition()));
     }
 }
        
