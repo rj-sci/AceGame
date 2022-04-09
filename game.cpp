@@ -5,6 +5,7 @@
 #include "saucer_game_object.h"
 #include "particle_system.h"
 #include "alien_game_object.h"
+#include "game_over.h"
 namespace game {
 
 // Some configuration constants
@@ -109,15 +110,8 @@ void Game::Setup(void)
 
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
-    /*
-    * Riley: 
-    * Added textures array just cause player needs more than one (default, shielded, slightly shielded, damaged)
-    */
-
-    GLuint playertexs[2];
-    playertexs[0] = tex_[0];
-    playertexs[1] = tex_[1];
-    player_ = new PlayerGameObject(glm::vec3(0.0f, -5.0f, 0.0f), playertexs, size_);
+    player_ = new PlayerGameObject(glm::vec3(0.0f, -5.0f, 0.0f), tex_[0], size_);
+    game_over_obj_ = new GameOver(glm::vec3(0.0f, -2.0f, 0.0f), tex_[12], size_, false, 0.0);
     game_objects_.push_back(player_);
 
 
@@ -173,6 +167,7 @@ void Game::MainLoop(void)
 
         glm::mat4 translation_matrix = glm::translate(glm::mat4(1.0f), -cameraPosition);
         glm::mat4 view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
+        shader_.SetUniformMat4("view_matrix", view_matrix);
 
         // Calculate delta time
         double currentTime = glfwGetTime();
@@ -268,7 +263,7 @@ void Game::SetAllTextures(void)
     // Load all textures that we will need
     glGenTextures(NUM_TEXTURES, tex_);
     SetTexture(tex_[0], (resources_directory_g+std::string("/textures/spacecraft.png")).c_str());
-    SetTexture(tex_[1], (resources_directory_g+std::string("/textures/shielded_spacecraft.png")).c_str());
+    SetTexture(tex_[1], (resources_directory_g+std::string("/textures/shieldedspacecraft.png")).c_str());
     SetTexture(tex_[2], (resources_directory_g+std::string("/textures/asteroid.png")).c_str());
     SetTexture(tex_[3], (resources_directory_g+std::string("/textures/space.png")).c_str());
     SetTexture(tex_[4], (resources_directory_g + std::string("/textures/explosion.png")).c_str());
@@ -282,7 +277,7 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[12], (resources_directory_g + std::string("/textures/greenorb.png")).c_str());
     SetTexture(tex_[13], (resources_directory_g + std::string("/textures/explosion.png")).c_str());
     SetTexture(tex_[14], (resources_directory_g + std::string("/textures/alien.png")).c_str());
-
+    SetTexture(tex_[15], (resources_directory_g + std::string("/textures/game_over.png")).c_str());
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -448,6 +443,20 @@ void Game::Update(double delta_time, glm::mat4 view_matrix)
         }
 
         if (current_game_object->GetName() == bullet || current_game_object->GetName() == missile)
+        AlienGameObject* alien = dynamic_cast<AlienGameObject*> (current_game_object);
+
+        if (alien != NULL)
+        {
+            std::vector<GameObject*> b = alien->GetBullets();
+
+            
+            for (int j = 0; j < b.size(); j++)
+            {
+                Collision::FindCollisions(i, &game_objects_, b[j], delta_time);
+            }
+        }
+
+        if (current_game_object->GetName() == bullet)
         {
             current_game_object->CheckLife(current_time_);
 

@@ -77,6 +77,8 @@ namespace game {
             //NEW: bool death checker
             bool dead_;
 
+            glm::vec3 accel_;
+
             glm::mat4 parent_transformation_;
 
            

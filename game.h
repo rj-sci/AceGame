@@ -53,7 +53,7 @@ namespace game {
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 15
+#define NUM_TEXTURES 16
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
@@ -99,6 +99,7 @@ namespace game {
             double last_time_;
 
             GameObject* camera_target_;
+            GameObject* game_over_obj_;
 
     }; // class Game
 
