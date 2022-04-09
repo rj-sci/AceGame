@@ -92,7 +92,7 @@ namespace game {
     {
         switch (other_game_object->GetName()) {
         case player:
-            return Collision::CicleCircleCollision(other_game_object, position_, radius_);
+            return Collision::CircleCircleCollision(other_game_object, position_, radius_);
             /*case bullet:
                 return Collision::CicleCircleCollision(other_game_object, position_, radius_);*/
         }

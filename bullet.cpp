@@ -74,18 +74,13 @@ namespace game {
 			//current_t += delta_time;
 		}
 
-
-
-		
-		
-
 	}
 
 	bool Bullet::ValidCollision(GameObject* other_game_object, double deltatime) {
 		switch (other_game_object->GetName()) 
 		{
 		case player:
-			return Collision::CicleCircleCollision(other_game_object, position_, 0.0);
+			return Collision::CircleCircleCollision(other_game_object, position_, 0.0);
 		default:
 			return Collision::RayCircleCollision(other_game_object, initial_pos_, velocity_, last_t_, current_t_);
 		}

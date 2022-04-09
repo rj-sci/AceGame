@@ -110,7 +110,12 @@ void Game::Setup(void)
 
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
-    player_ = new PlayerGameObject(glm::vec3(0.0f, -5.0f, 0.0f), tex_[0], size_);
+
+    GLuint playertexs[2];
+    playertexs[0] = tex_[0];
+    playertexs[1] = tex_[1];
+
+    player_ = new PlayerGameObject(glm::vec3(0.0f, -5.0f, 0.0f), playertexs, size_);
     game_over_obj_ = new GameOver(glm::vec3(0.0f, -2.0f, 0.0f), tex_[12], size_, false, 0.0);
     game_objects_.push_back(player_);
 
@@ -121,7 +126,7 @@ void Game::Setup(void)
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
 
     game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
-    game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[14], size_, player_, true, 0.5f, enemy));
+    game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[14], size_, player_, true, 0.5f, enemy, tex_[7]));
 
     game_objects_.push_back(new AsteroidGameObject(glm::vec3(5.0f, 0.0f, 0.0f), tex_[2], size_, player_->GetPosition()));
 
@@ -167,7 +172,8 @@ void Game::MainLoop(void)
 
         glm::mat4 translation_matrix = glm::translate(glm::mat4(1.0f), -cameraPosition);
         glm::mat4 view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
-        shader_.SetUniformMat4("view_matrix", view_matrix);
+        sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
+        particle_shader_.SetUniformMat4("view_matrix", view_matrix);
 
         // Calculate delta time
         double currentTime = glfwGetTime();
@@ -425,13 +431,7 @@ void Game::Update(double delta_time, glm::mat4 view_matrix)
     //check for newly acquired powerups and add them to game_objects_
     UpdateTiles();
     //check if we should add a new enemy to the world
-    enemy_cooldown_ = current_time_ - last_time_;
-    int num = rand() % 3;
-    if(enemy_cooldown_  > 5 && num == 0){
-        std::cout << "Spawning new enemy\n";
-        SpawnEnemies();
-        last_time_ = current_time_;
-    }
+    EnemyGeneration();
     // Update and render all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
         // Get the current game object
@@ -442,55 +442,55 @@ void Game::Update(double delta_time, glm::mat4 view_matrix)
             Collision::FindCollisions(i, &game_objects_, current_game_object, delta_time);
         }
 
-        if (current_game_object->GetName() == bullet || current_game_object->GetName() == missile)
-        AlienGameObject* alien = dynamic_cast<AlienGameObject*> (current_game_object);
+        if (current_game_object->GetName() == bullet || current_game_object->GetName() == missile) {
+            AlienGameObject* alien = dynamic_cast<AlienGameObject*> (current_game_object);
 
-        if (alien != NULL)
-        {
-            std::vector<GameObject*> b = alien->GetBullets();
-
-            
-            for (int j = 0; j < b.size(); j++)
+            if (alien != NULL)
             {
-                Collision::FindCollisions(i, &game_objects_, b[j], delta_time);
+                std::vector<GameObject*> b = alien->GetBullets();
+
+
+                for (int j = 0; j < b.size(); j++)
+                {
+                    Collision::FindCollisions(i, &game_objects_, b[j], delta_time);
+                }
             }
+
+            if (current_game_object->GetName() == bullet)
+            {
+                current_game_object->CheckLife(current_time_);
+
+            }
+
+        }
+            // Render game object (check if its a particle system)
+            ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
+            if (p != nullptr) {
+               //particle_shader_.Enable();
+               //particle_shader_.SetUniformMat4("view_matrix", view_matrix);
+               //particle_shader_.SetParticleAttributes();
+                //current_game_object->Render(particle_shader_);
+            }
+            else {
+               // sprite_shader_.Enable();
+                //sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
+                sprite_shader_.SetSpriteAttributes();
+                current_game_object->Render(sprite_shader_);
+            }
+            //remove object if it is out of health
+            GetDeadObjects(current_game_object, &game_objects_, i);
         }
 
-        if (current_game_object->GetName() == bullet)
+        //Tile Loop
+       // sprite_shader_.Enable();
+       // sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
+        sprite_shader_.SetSpriteAttributes();
+        for (int i = 0; i < tile_map_.size(); i++)
         {
-            current_game_object->CheckLife(current_time_);
-
+            GameObject* current_tile = tile_map_[i];
+            current_tile->Update(delta_time);
+            current_tile->Render(sprite_shader_);
         }
-        // Render game object (check if its a particle system)
-        ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
-        if (p != nullptr) {
-            particle_shader_.Enable();
-            particle_shader_.SetUniformMat4("view_matrix", view_matrix);
-            particle_shader_.SetParticleAttributes();
-            current_game_object->Render(particle_shader_, current_time_);
-        }
-        else {
-            sprite_shader_.Enable();
-            sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
-            sprite_shader_.SetSpriteAttributes();
-            current_game_object->Render(sprite_shader_, current_time_);
-        }
-        //remove object if it is out of health
-        GetDeadObjects(current_game_object, &game_objects_, i);
-    }
-
-    //Tile Loop
-    sprite_shader_.Enable();
-    sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
-    sprite_shader_.SetSpriteAttributes();
-    for (int i = 0; i < tile_map_.size(); i++)
-    {
-        GameObject* current_tile = tile_map_[i];
-        current_tile->Update(delta_time);
-        current_tile->Render(sprite_shader_, current_time_);
-    }
-
-
 }
 void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i) {
     if (current_game_object->GetDead()) {
@@ -580,10 +580,18 @@ void Game::SpawnEnemies() {
             game_objects_.push_back(new SaucerGameObject(arr[choice1], tex_[9], size_, player_, true, 1.0f, enemy));
     
         case 1:
-            game_objects_.push_back(new AlienGameObject(arr[choice1], tex_[14], size_, player_, true, 0.5f, enemy));
+            game_objects_.push_back(new AlienGameObject(arr[choice1], tex_[14], size_, player_, true, 0.5f, enemy, tex_[4]));
 
         case 2:
             game_objects_.push_back(new AsteroidGameObject(arr[choice1], tex_[2], size_, player_->GetPosition()));
+    }
+}
+void Game::EnemyGeneration() {
+    enemy_cooldown_ = current_time_ - last_time_;
+    int num = rand() % 3;
+    if (enemy_cooldown_ > 5 && num == 0) {
+        SpawnEnemies();
+        last_time_ = current_time_;
     }
 }
        

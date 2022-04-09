@@ -29,12 +29,14 @@ void GameObject::Update(double delta_time) {
 }
 
 
-void GameObject::Render(Shader &shader, double current_time) {
+void GameObject::Render(Shader &shader) {
 
     // Bind the entity's texture
     glBindTexture(GL_TEXTURE_2D, texture_);
 
     // Set up the shader
+    shader.Enable();
+    shader.SetSpriteAttributes();
     // Setup the scaling matrix for the shader
     glm::mat4 scaling_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale_, scale_, 1.0));
 

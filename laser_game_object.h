@@ -11,7 +11,7 @@ namespace game
 		public:
 			LaserGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p);
 			void Update(double delta_time);
-			void Render(Shader& shader, double current_time);
+			void Render(Shader& shader);
 			bool ValidCollision(GameObject* other_game_object, double deltatime);
 			bool HandleCollision(GameObject* other_game_object, double deltatime);
 		private:

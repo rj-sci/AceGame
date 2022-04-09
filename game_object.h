@@ -28,7 +28,7 @@ namespace game {
             virtual void Update(double delta_time);
 
             // Renders the GameObject using a shader
-            virtual void Render(Shader &shader, double current_time);
+            virtual void Render(Shader &shader);
 
             inline virtual void CheckLife(double delta_time) {  }
             // Getters

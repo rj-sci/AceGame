@@ -24,6 +24,7 @@ set(HDRS
     particle_system.h
     alien_game_object.h
     asteroid_game_object.h
+    game_over.h
 )
  
 set(SRCS
@@ -49,6 +50,7 @@ set(SRCS
     particle_fragment_shader.glsl
     alien_game_object.cpp
     asteroid_game_object.cpp
+    game_over.cpp
 
 )
 

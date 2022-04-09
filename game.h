@@ -86,6 +86,8 @@ namespace game {
             void UpdateTiles();
 
             void SpawnEnemies(void);
+
+            void EnemyGeneration(void);
             //Check for objects that should be removed from the world
             void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i);
 

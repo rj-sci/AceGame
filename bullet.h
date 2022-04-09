@@ -2,6 +2,7 @@
 #include <vector>
 #include "game_object.h"
 
+#define BULLET_SPEED 2
 namespace game {
 
     // Class that abstracts a bullet fired from a game object
