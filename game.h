@@ -49,11 +49,14 @@ namespace game {
             //Shader for rendering particles
             Shader particle_shader_;
 
+            Shader text_shader_;
+
+
             // Size of geometry to be rendered
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 16
+#define NUM_TEXTURES 17
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
@@ -81,7 +84,7 @@ namespace game {
             void Controls(void);
 
             // Update the game based on user input and simulation
-            void Update(double delta_time, glm::mat4);
+            void Update(double delta_time, glm::mat4, glm::mat4);
 
             void UpdateTiles();
 

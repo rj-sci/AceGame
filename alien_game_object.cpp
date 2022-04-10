@@ -110,13 +110,13 @@ namespace game {
         return true;
     }
 
-    void AlienGameObject::Render(Shader& shader)
+    void AlienGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)
     {
-        GameObject::Render(shader);
+        GameObject::Render(shader, view_matrix, current_time);
 
         for (int i = 0; i < bullets_.size(); i++)
         {
-            bullets_[i]->Render(shader);
+            bullets_[i]->Render(shader, view_matrix, current_time);
         }
     }
 }

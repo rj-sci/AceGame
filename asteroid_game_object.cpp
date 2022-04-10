@@ -12,16 +12,23 @@ namespace game {
 	}
 
 	void AsteroidGameObject::Update(double delta_time) {
+		rotation_ += 0.4;
 		GameObject::Update(delta_time);
 	}
 
 	bool AsteroidGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {
 		switch (other_game_object->GetName()) {
+		case player:
+			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 		default:
 			return false;
 		}
 	}
 	bool AsteroidGameObject::HandleCollision(GameObject* other_game_object, double deltatime) {
+		switch (other_game_object->GetName()) {
+		case player:
+			dead_ = true;
+		}
 		return true;
 	}
 }

@@ -18,8 +18,7 @@ namespace game {
     }
 
 
-    void ParticleSystem::Render(Shader& shader, double current_time) {
-        glUseProgram(shader.GetShaderID());
+    void ParticleSystem::Render(Shader& shader,glm::mat4 view_matrix,double current_time) {
         // Bind the particle texture
         glBindTexture(GL_TEXTURE_2D, texture_);
 
@@ -49,6 +48,9 @@ namespace game {
 
         // Set the time in the shader
         shader.SetUniform1f("time", current_time);
+
+        // Set the view matrix
+        shader.SetUniformMat4("view_matrix", view_matrix);
 
         // Draw the entity
         glDrawElements(GL_TRIANGLES, shader.GetParticleSize(), GL_UNSIGNED_INT, 0);

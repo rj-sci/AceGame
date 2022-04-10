@@ -27,7 +27,7 @@ namespace game {
 
         void Update(double delta_time);
 
-        virtual void Render(Shader& shader);
+        virtual void Render(Shader& shader, glm::mat4 view_matrix, double current_time);
 
         bool ValidCollision(GameObject* other_game_object, double deltatime);
         bool HandleCollision(GameObject* other_game_object, double deltatime);

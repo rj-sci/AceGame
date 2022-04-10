@@ -77,7 +77,7 @@ namespace game
         return true;
     }
 
-    void SaucerGameObject::Render(Shader& shader)
+    void SaucerGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)
     {
 
         // Bind the entity's texture

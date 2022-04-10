@@ -13,7 +13,7 @@ namespace game {
 
         void Update(double delta_time) override;
 
-        void Render(Shader& shader, double current_time);
+        void Render(Shader& shader, glm::mat4 view_matrix, double current_time);
         virtual bool ValidCollision(GameObject* other_game_object, double deltatime);
         virtual bool HandleCollision(GameObject* other_game_object, double deltatime);
 

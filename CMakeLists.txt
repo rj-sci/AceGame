@@ -25,6 +25,8 @@ set(HDRS
     alien_game_object.h
     asteroid_game_object.h
     game_over.h
+    path_config.h
+    text_game_object.h
 )
  
 set(SRCS
@@ -51,6 +53,9 @@ set(SRCS
     alien_game_object.cpp
     asteroid_game_object.cpp
     game_over.cpp
+    text_fragment_shader.glsl
+    text_vertex_shader.glsl
+    text_game_object.cpp
 
 )
 

@@ -23,7 +23,7 @@ namespace game
 
 	}
 
-	void GameOver::Render(Shader& shader) {
+	void GameOver::Render(Shader& shader, glm::mat4 view_matrix, double current_time) {
 
 		// Bind the entity's texture
 		glBindTexture(GL_TEXTURE_2D, texture_);

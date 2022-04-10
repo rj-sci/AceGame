@@ -50,6 +50,9 @@ namespace game {
             // Sets a uniform matrix4x4 variable in your shader program to a matrix4x4
             void SetUniformMat4(const GLchar *name, const glm::mat4 &matrix);
 
+            // Sets a uniform array of integers
+            void SetUniformIntArray(const GLchar* name, int len, const GLint* data);
+
             // Getters
             inline GLuint GetShaderID() { return shader_program_; }
             inline int GetSpriteSize(void) { return size_sprite_; }

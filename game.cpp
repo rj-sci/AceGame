@@ -6,6 +6,7 @@
 #include "particle_system.h"
 #include "alien_game_object.h"
 #include "game_over.h"
+#include "text_game_object.h"
 namespace game {
 
 // Some configuration constants
@@ -67,14 +68,14 @@ void Game::Init(void)
 
     particle_shader_.Init((resources_directory_g + std::string("/particle_vertex_shader.glsl")).c_str(), (resources_directory_g + std::string("/particle_fragment_shader.glsl")).c_str());
     particle_shader_.CreateParticles();
-    particle_shader_.Enable();
-    particle_shader_.SetParticleAttributes();
+
 
     // Initialize sprite shader
     sprite_shader_.Init((resources_directory_g+std::string("/vertex_shader.glsl")).c_str(), (resources_directory_g+std::string("/fragment_shader.glsl")).c_str());
     sprite_shader_.CreateSprite();
-    sprite_shader_.Enable();
-    sprite_shader_.SetSpriteAttributes();
+    // Initialize text shader
+    text_shader_.Init((resources_directory_g + std::string("/text_vertex_shader.glsl")).c_str(), (resources_directory_g + std::string("/text_fragment_shader.glsl")).c_str());
+    text_shader_.CreateSprite();
 
     // Set up z-buffer for rendering
     glEnable(GL_DEPTH_TEST);
@@ -110,6 +111,7 @@ void Game::Setup(void)
 
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
+        // Set up text quad
 
     GLuint playertexs[2];
     playertexs[0] = tex_[0];
@@ -131,6 +133,7 @@ void Game::Setup(void)
     game_objects_.push_back(new AsteroidGameObject(glm::vec3(5.0f, 0.0f, 0.0f), tex_[2], size_, player_->GetPosition()));
 
 
+
     // Setup background
     
     for (int i = -10; i <= 10; i += 10)
@@ -147,7 +150,10 @@ void Game::Setup(void)
     particles->SetScale(0.2);
     game_objects_.push_back(particles);
     
-    
+    TextGameObject* text = new TextGameObject(glm::vec3(-2.0f, -3.25f, 0.0f), tex_[16], player_);
+    text->SetScale(glm::vec2(1.5, 0.5));
+    text->SetText("Health:");
+    game_objects_.push_back(text);
 }
 
 
@@ -174,6 +180,7 @@ void Game::MainLoop(void)
         glm::mat4 view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
         sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
         particle_shader_.SetUniformMat4("view_matrix", view_matrix);
+        text_shader_.SetUniformMat4("view_matrix", view_matrix);
 
         // Calculate delta time
         double currentTime = glfwGetTime();
@@ -181,7 +188,7 @@ void Game::MainLoop(void)
         lastTime = currentTime;
 
         // Update the game
-        Update(deltaTime, view_matrix);
+        Update(deltaTime, view_matrix, translation_matrix);
 
         // Push buffer drawn in the background onto the display
         glfwSwapBuffers(window_);
@@ -284,6 +291,8 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[13], (resources_directory_g + std::string("/textures/explosion.png")).c_str());
     SetTexture(tex_[14], (resources_directory_g + std::string("/textures/alien.png")).c_str());
     SetTexture(tex_[15], (resources_directory_g + std::string("/textures/game_over.png")).c_str());
+    SetTexture(tex_[16], (resources_directory_g + std::string("/textures/charmap-cellphone_white.png")).c_str());
+
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -422,7 +431,7 @@ void Game::Controls(void)
 }
 
 
-void Game::Update(double delta_time, glm::mat4 view_matrix)
+void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translation_matrix)
 {
 
     current_time_ += delta_time;
@@ -433,6 +442,8 @@ void Game::Update(double delta_time, glm::mat4 view_matrix)
     //check if we should add a new enemy to the world
     EnemyGeneration();
     // Update and render all game objects
+    float cameraZoom = 0.25f;
+    view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
     for (int i = 0; i < game_objects_.size(); i++) {
         // Get the current game object
         GameObject* current_game_object = game_objects_[i];
@@ -463,33 +474,33 @@ void Game::Update(double delta_time, glm::mat4 view_matrix)
             }
 
         }
-            // Render game object (check if its a particle system)
+            // Render game object (check if its a particle system or text object)
             ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
             if (p != nullptr) {
-               //particle_shader_.Enable();
-               //particle_shader_.SetUniformMat4("view_matrix", view_matrix);
-               //particle_shader_.SetParticleAttributes();
-                //current_game_object->Render(particle_shader_);
+                current_game_object->Render(particle_shader_, view_matrix, current_time_);
             }
             else {
-               // sprite_shader_.Enable();
-                //sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
-                sprite_shader_.SetSpriteAttributes();
-                current_game_object->Render(sprite_shader_);
+                TextGameObject* t = dynamic_cast<TextGameObject*>(current_game_object);
+                if (t != nullptr) {
+                    text_shader_.SetUniformMat4("view_matrix", view_matrix);
+                    current_game_object->Render(text_shader_, view_matrix, current_time_);
+                }
+                else {
+                    sprite_shader_.SetSpriteAttributes();
+                    current_game_object->Render(sprite_shader_, view_matrix, current_time_);
+                }
             }
             //remove object if it is out of health
             GetDeadObjects(current_game_object, &game_objects_, i);
         }
 
         //Tile Loop
-       // sprite_shader_.Enable();
-       // sprite_shader_.SetUniformMat4("view_matrix", view_matrix);
         sprite_shader_.SetSpriteAttributes();
         for (int i = 0; i < tile_map_.size(); i++)
         {
             GameObject* current_tile = tile_map_[i];
             current_tile->Update(delta_time);
-            current_tile->Render(sprite_shader_);
+            current_tile->Render(sprite_shader_, view_matrix, current_time_);
         }
 }
 void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i) {
@@ -569,10 +580,13 @@ void Game::UpdateTiles()
 }
 void Game::SpawnEnemies() {
     int choice1 = rand() % 4;
-    glm::vec3 pos1 = glm::vec3(player_->GetPosition().x - 5, player_->GetPosition().y + 5, 0);
-    glm::vec3 pos2 = glm::vec3(player_->GetPosition().x + 5, player_->GetPosition().y + 5, 0);
-    glm::vec3 pos3 = glm::vec3(player_->GetPosition().x - 5, player_->GetPosition().y - 5, 0);
-    glm::vec3 pos4 = glm::vec3(player_->GetPosition().x + 5, player_->GetPosition().y - 5, 0);
+    float max = 5;
+    float min = -5;
+    float ran = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
+    glm::vec3 pos1 = glm::vec3(player_->GetPosition().x - 5, player_->GetPosition().y + ran, 0);
+    glm::vec3 pos2 = glm::vec3(player_->GetPosition().x + 5, player_->GetPosition().y + ran, 0);
+    glm::vec3 pos3 = glm::vec3(player_->GetPosition().x + ran, player_->GetPosition().y - 5, 0);
+    glm::vec3 pos4 = glm::vec3(player_->GetPosition().x + ran, player_->GetPosition().y + 5, 0);
     glm::vec3 arr[4] = { pos1,pos2,pos3,pos4 };
     int choice2 = rand() % 3;
     switch (choice2) {
