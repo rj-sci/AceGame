@@ -39,7 +39,7 @@ void TextGameObject::Render(Shader &shader, glm::mat4 view_matrix, double curren
     shader.SetUniformMat4("view_matrix", view_matrix);
 
     // Set the text
-#define TEXT_LENGTH 7
+#define TEXT_LENGTH 13
     // Set text length
     int final_size = text_.size();
     if (final_size > TEXT_LENGTH){

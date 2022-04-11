@@ -6,7 +6,6 @@
 #include "particle_system.h"
 #include "alien_game_object.h"
 #include "game_over.h"
-#include "text_game_object.h"
 namespace game {
 
 // Some configuration constants
@@ -123,16 +122,7 @@ void Game::Setup(void)
 
 
     // Setup other objects
-
-    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 5.0f, 0.0f), tex_[5], size_, shield_type));
-    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
-
-    game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, tex_[10], true, 1.0f, enemy));
-    game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[14], size_, player_, true, 0.5f, enemy, tex_[7]));
-
-    game_objects_.push_back(new AsteroidGameObject(glm::vec3(5.0f, 0.0f, 0.0f), tex_[2], size_, player_->GetPosition()));
-
-
+        //Removed preset enemies for now
 
     // Setup background
     
@@ -149,11 +139,21 @@ void Game::Setup(void)
     ParticleSystem* particles = new ParticleSystem(glm::vec3(0.0f, -0.5f, 0.0f), tex_[12], size_, player_);
     particles->SetScale(0.2);
     game_objects_.push_back(particles);
-    
-    TextGameObject* text = new TextGameObject(glm::vec3(-2.0f, -3.25f, 0.0f), tex_[16], player_);
-    text->SetScale(glm::vec2(1.5, 0.5));
-    text->SetText("Health:");
-    game_objects_.push_back(text);
+    //Set up UI elements
+    health_ = new TextGameObject(glm::vec3(-3.2f, -1.0f, 0.0f), tex_[16], player_);
+    health_->SetScale(glm::vec2(1.5, 0.5));
+    health_->SetText("Health:" + std::to_string(player_->GetHealth()));
+    game_objects_.push_back(health_);
+
+    shield_ = new TextGameObject(glm::vec3(-3.2f, -2.0f, 0.0f), tex_[16], player_);
+    shield_->SetScale(glm::vec2(1.5, 0.5));
+    shield_->SetText("Shield:" + std::to_string(player_->GetShieldPower()));
+    game_objects_.push_back(shield_);
+
+    missiles_ = new TextGameObject(glm::vec3(-3.2f, -3.0f, 0.0f), tex_[16], player_);
+    missiles_->SetScale(glm::vec2(1.5, 0.5));
+    missiles_->SetText("Missiles:" + std::to_string(player_->GetNumMissiles()));
+    game_objects_.push_back(missiles_);
 
     game_over_ = false;
 }
@@ -467,8 +467,7 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
     UpdateTiles();
     //check if we should add a new enemy to the world
     EnemyGeneration();
-    // Update and render all game objects
-    
+    //Update and render all game objects
     
     for (int i = 0; i < game_objects_.size(); i++) {
         // Get the current game object
@@ -499,24 +498,29 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
 
 
         }
-            // Render game object (check if its a particle system or text object)
-            ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
-            if (p != nullptr) {
-                current_game_object->Render(particle_shader_, view_matrix, current_time_);
+        //Update UI
+        health_->SetText("Health:" + std::to_string(player_->GetHealth()));
+        shield_->SetText("Shield:" + std::to_string(player_->GetShieldPower()));
+        missiles_->SetText("Missiles:" + std::to_string(player_->GetNumMissiles()));
+
+        // Render game object (check if its a particle system or text object)
+        ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
+        if (p != nullptr) {
+            current_game_object->Render(particle_shader_, view_matrix, current_time_);
+        }
+        else {
+            TextGameObject* t = dynamic_cast<TextGameObject*>(current_game_object);
+            if (t != nullptr) {
+                text_shader_.SetUniformMat4("view_matrix", view_matrix);
+                current_game_object->Render(text_shader_, view_matrix, current_time_);
             }
             else {
-                TextGameObject* t = dynamic_cast<TextGameObject*>(current_game_object);
-                if (t != nullptr) {
-                    text_shader_.SetUniformMat4("view_matrix", view_matrix);
-                    current_game_object->Render(text_shader_, view_matrix, current_time_);
-                }
-                else {
-                    sprite_shader_.SetSpriteAttributes();
-                    current_game_object->Render(sprite_shader_, view_matrix, current_time_);
-                }
+                sprite_shader_.SetSpriteAttributes();
+                current_game_object->Render(sprite_shader_, view_matrix, current_time_);
             }
-            //remove object if it is out of health
-            GetDeadObjects(current_game_object, &game_objects_, i);
+        }
+        //remove object if it is out of health
+        GetDeadObjects(current_game_object, &game_objects_, i);
         }
 
         //Tile Loop

@@ -18,6 +18,8 @@ namespace game {
             //getters
             inline PUpType GetPowerUp(void) { return power_up_; }
             inline int GetNumMissiles(void) { return num_missiles_; }
+            inline int GetHealth(void) { return health_; }
+            inline int GetShieldPower(void) { return shield_power_; }
             //setters
             inline void SetPowerUp(PUpType type) { power_up_ = type; }
             inline void SetNumMissiles(int num) { num_missiles_ = num; }

@@ -17,6 +17,7 @@ namespace game {
             // Text to be displayed
             std::string GetText(void) const;
             void SetText(const std::string &text);
+            inline void SetLength(int length) { length_ = length; }
 
             // Render function for the text
             void Render(Shader &shader, glm::mat4 view_matrix, double current_time);
@@ -30,6 +31,7 @@ namespace game {
             std::string text_;
             glm::vec2 text_scale_;
             PlayerGameObject* p_;
+            int length_;
 
     }; // class TextGameObject
 

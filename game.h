@@ -19,6 +19,7 @@
 #include "shield.h"
 #include "missile.h"
 #include "asteroid_game_object.h"
+#include "text_game_object.h"
 
 namespace game {
 
@@ -51,6 +52,13 @@ namespace game {
 
             Shader text_shader_;
 
+            //Pointers to ui elements to simplify things
+            //health
+            TextGameObject* health_;
+            //shield
+            TextGameObject* shield_;
+            //missiles
+            TextGameObject* missiles_;
 
             // Size of geometry to be rendered
             int size_;

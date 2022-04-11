@@ -17,6 +17,7 @@ PlayerGameObject::PlayerGameObject(const glm::vec3 &position, GLuint* textures, 
 	shielded_tex_ = textures[1];
 	default_tex_ = textures[0];
 	num_missiles_ = 2;
+	shield_power_ = 0;
 	}
 
 // Update function for moving the player object around
