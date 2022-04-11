@@ -20,7 +20,7 @@ namespace game {
 
         AsteroidGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, glm::vec3 dir);
 
-        void Update(double delta_time);
+        void Update(double delta_time, double current_time);
 
         bool ValidCollision(GameObject* other_game_object, double deltatime);
         bool HandleCollision(GameObject* other_game_object, double deltatime);

@@ -118,7 +118,7 @@ void Game::Setup(void)
     playertexs[1] = tex_[1];
 
     player_ = new PlayerGameObject(glm::vec3(0.0f, -5.0f, 0.0f), playertexs, size_);
-    game_over_obj_ = new GameOver(glm::vec3(0.0f, -2.0f, 0.0f), tex_[12], size_, false, 0.0);
+    game_over_obj_ = new GameOver(glm::vec3(0.0f, -2.0f, 0.0f), tex_[15], size_, false, 0.0);
     game_objects_.push_back(player_);
 
 
@@ -127,7 +127,7 @@ void Game::Setup(void)
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 5.0f, 0.0f), tex_[5], size_, shield_type));
     game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 3.0f, 0.0f), tex_[5], size_, shield_type));
 
-    game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, true, 1.0f, enemy));
+    game_objects_.push_back(new SaucerGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[9], size_, player_, tex_[10], true, 1.0f, enemy));
     game_objects_.push_back(new AlienGameObject(glm::vec3(0.0f, 0.0f, 0.0f), tex_[14], size_, player_, true, 0.5f, enemy, tex_[7]));
 
     game_objects_.push_back(new AsteroidGameObject(glm::vec3(5.0f, 0.0f, 0.0f), tex_[2], size_, player_->GetPosition()));
@@ -154,6 +154,8 @@ void Game::Setup(void)
     text->SetScale(glm::vec2(1.5, 0.5));
     text->SetText("Health:");
     game_objects_.push_back(text);
+
+    game_over_ = false;
 }
 
 
@@ -285,7 +287,7 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[7], (resources_directory_g + std::string("/textures/enemy_bullet.png")).c_str());
     SetTexture(tex_[8], (resources_directory_g + std::string("/textures/spr_shield.png")).c_str());
     SetTexture(tex_[9], (resources_directory_g + std::string("/textures/ufo.png")).c_str());
-    SetTexture(tex_[10], (resources_directory_g + std::string("/textures/enemy_laser.png")).c_str());
+    SetTexture(tex_[10], (resources_directory_g + std::string("/textures/fire_ball.png")).c_str());
     SetTexture(tex_[11], (resources_directory_g + std::string("/textures/missile.png")).c_str());
     SetTexture(tex_[12], (resources_directory_g + std::string("/textures/greenorb.png")).c_str());
     SetTexture(tex_[13], (resources_directory_g + std::string("/textures/explosion.png")).c_str());
@@ -435,6 +437,30 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
 {
 
     current_time_ += delta_time;
+    float cameraZoom = 0.25f;
+    view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
+
+    game_over_obj_->SetPosition(player_->GetPosition());
+
+    if (game_over_)
+    {
+
+        game_over_obj_->Render(sprite_shader_, view_matrix, current_time_);
+
+        for (int i = 0; i < game_objects_.size(); i++)
+        {
+            game_objects_[i]->Render(sprite_shader_, view_matrix, current_time_);
+        }
+
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+            current_tile->Update(delta_time, current_time_);
+            current_tile->Render(sprite_shader_, view_matrix, current_time_);
+        }
+        return;
+    }
+
     // Handle user input
     Controls();
     //check for newly acquired powerups and add them to game_objects_
@@ -442,36 +468,35 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
     //check if we should add a new enemy to the world
     EnemyGeneration();
     // Update and render all game objects
-    float cameraZoom = 0.25f;
-    view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
+    
+    
     for (int i = 0; i < game_objects_.size(); i++) {
         // Get the current game object
         GameObject* current_game_object = game_objects_[i];
         // Update the current game object
-        current_game_object->Update(delta_time);
+        current_game_object->Update(delta_time, current_time_);
         if (current_game_object->GetCollidable()) {
             Collision::FindCollisions(i, &game_objects_, current_game_object, delta_time);
         }
 
-        if (current_game_object->GetName() == bullet || current_game_object->GetName() == missile) {
-            AlienGameObject* alien = dynamic_cast<AlienGameObject*> (current_game_object);
+        AlienGameObject* alien = dynamic_cast<AlienGameObject*> (current_game_object);
+        if (alien != NULL)
+        {
+            std::vector<GameObject*> b = alien->GetBullets();
 
-            if (alien != NULL)
+
+            for (int j = 0; j < b.size(); j++)
             {
-                std::vector<GameObject*> b = alien->GetBullets();
-
-
-                for (int j = 0; j < b.size(); j++)
-                {
-                    Collision::FindCollisions(i, &game_objects_, b[j], delta_time);
-                }
+                Collision::FindCollisions(i, &game_objects_, b[j], delta_time);
             }
+        }
 
-            if (current_game_object->GetName() == bullet)
-            {
-                current_game_object->CheckLife(current_time_);
+        if (current_game_object->GetName() == bullet || current_game_object->GetName() == missile) 
+        {
+            
 
-            }
+            current_game_object->CheckLife(current_time_);
+
 
         }
             // Render game object (check if its a particle system or text object)
@@ -499,7 +524,7 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
         for (int i = 0; i < tile_map_.size(); i++)
         {
             GameObject* current_tile = tile_map_[i];
-            current_tile->Update(delta_time);
+            current_tile->Update(delta_time, current_time_);
             current_tile->Render(sprite_shader_, view_matrix, current_time_);
         }
 }
@@ -591,7 +616,7 @@ void Game::SpawnEnemies() {
     int choice2 = rand() % 3;
     switch (choice2) {
         case 0:
-            game_objects_.push_back(new SaucerGameObject(arr[choice1], tex_[9], size_, player_, true, 1.0f, enemy));
+            game_objects_.push_back(new SaucerGameObject(arr[choice1], tex_[9], size_, player_, tex_[10], true, 1.0f, enemy));
     
         case 1:
             game_objects_.push_back(new AlienGameObject(arr[choice1], tex_[14], size_, player_, true, 0.5f, enemy, tex_[4]));

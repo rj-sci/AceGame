@@ -11,7 +11,7 @@ namespace game {
             PlayerGameObject(const glm::vec3 &position, GLuint* textures, GLint num_elements);
 
             // Update function for moving the player object around
-            void Update(double delta_time) override;
+            void Update(double delta_time, double current_time) override;
             //inherited virtual functions
             bool ValidCollision(GameObject* other_game_object, double deltatime);
             bool HandleCollision(GameObject* other_game_object, double deltatime);

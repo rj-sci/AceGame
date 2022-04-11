@@ -1,5 +1,6 @@
 #include "player_game_object.h"
 #include "collision.h"
+#include "Bullet.h"
 
 namespace game {
 
@@ -19,7 +20,7 @@ PlayerGameObject::PlayerGameObject(const glm::vec3 &position, GLuint* textures, 
 	}
 
 // Update function for moving the player object around
-void PlayerGameObject::Update(double delta_time) {
+void PlayerGameObject::Update(double delta_time, double current_time) {
 	// Special player updates go here
 	glm::vec3 v = GetVelocity();
 
@@ -65,7 +66,7 @@ void PlayerGameObject::Update(double delta_time) {
 
 	SetVelocity(glm::vec3(v.x, v.y, 0.0f));
 	// Call the parent's update method to move the object in standard way, if desired
-	GameObject::Update(delta_time);
+	GameObject::Update(delta_time, current_time);
 }
 
 bool PlayerGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {
@@ -86,6 +87,17 @@ bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double del
 		case laser:
 			TakeDamage(1);
 			break;
+		case bullet:
+		{
+			Bullet *b = (Bullet*)other_game_object;
+			if (b->GetFirer() == enemy)
+			{
+				TakeDamage(1);
+			}
+			
+			break;
+		}
+			
 		case powerup:
 			PowerUp* pwrup = dynamic_cast<PowerUp*>(other_game_object);
 			if (pwrup->GetType() == shield_type) {

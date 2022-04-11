@@ -11,9 +11,9 @@ namespace game {
 		
 	}
 
-	void AsteroidGameObject::Update(double delta_time) {
+	void AsteroidGameObject::Update(double delta_time, double current_time) {
 		rotation_ += 0.4;
-		GameObject::Update(delta_time);
+		GameObject::Update(delta_time, current_time);
 	}
 
 	bool AsteroidGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {

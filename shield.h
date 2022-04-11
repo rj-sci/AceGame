@@ -11,7 +11,7 @@ namespace game {
     public:
         Shield(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* parent);
 
-        void Update(double delta_time) override;
+        void Update(double delta_time, double current_time) override;
 
         //inherited virtual member functions
         bool ValidCollision(GameObject* other_game_object, double deltatime);

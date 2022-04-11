@@ -22,7 +22,7 @@ GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elem
 }
 
 
-void GameObject::Update(double delta_time) {
+void GameObject::Update(double delta_time, double current_time) {
 
     // Update object position with Euler integration
     position_ += velocity_ * ((float) delta_time);

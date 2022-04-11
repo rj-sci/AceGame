@@ -1,18 +1,20 @@
 #include "saucer_game_object.h"
+#include "laser_game_object.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <GLFW/glfw3.h>
 
 namespace game
 {
-    SaucerGameObject::SaucerGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, bool collidable, float radius, Name name)
+    SaucerGameObject::SaucerGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, GLuint laserTex, bool collidable, float radius, Name name)
         : GameObject(position, texture, num_elements, collidable, radius) {
         target_ = p;
         name_ = name;
+        laser_ = new LaserGameObject(position, laserTex, num_elements, this);
     }
 
 
-    void SaucerGameObject::Update(double delta_time)
+    void SaucerGameObject::Update(double delta_time, double current_time)
     {
         float x = cos(rotation_ * (3.14159265 / 180)) * 3.0f;
         float y = sin(rotation_ * (3.14159265 / 180)) * 3.0f;
@@ -50,6 +52,8 @@ namespace game
             last_occurence_ = last_occurence_ + 0.00015;
 
         }*/
+
+        laser_->Update(delta_time, current_time);
 
     }
 
@@ -91,6 +95,8 @@ namespace game
 
         //glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), rotation_, glm::vec3(0.0f, 0.0f, 1.0f));
 
+        parent_transformation_ = translation_matrix;
+
         // Setup the transformation matrix for the shader
         glm::mat4 transformation_matrix = translation_matrix * scaling_matrix;
 
@@ -99,6 +105,8 @@ namespace game
 
         // Draw the entity
         glDrawElements(GL_TRIANGLES, num_elements_, GL_UNSIGNED_INT, 0);
+
+        laser_->Render(shader, view_matrix, current_time);
         
     }
 }

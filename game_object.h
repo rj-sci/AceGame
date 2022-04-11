@@ -25,7 +25,7 @@ namespace game {
             GameObject(const glm::vec3 &position, GLuint texture, GLint num_elements, bool collidable_, float radius);
 
             // Update the GameObject's state. Can be overriden for children
-            virtual void Update(double delta_time);
+            virtual void Update(double delta_time, double current_time);
 
             // Renders the GameObject using a shader
             virtual void Render(Shader &shader, glm::mat4 view_matrix, double current_time);

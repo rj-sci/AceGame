@@ -11,17 +11,17 @@ namespace game {
 
     public:
         static float current_t;
-        Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer, double spawnTime, GameObject* p = NULL);
+        Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer, double spawnTime, GameObject* p = NULL, GameObject* c = NULL);
 
         // Update function for moving the player object around
-        void Update(double delta_time) override;
+        void Update(double delta_time, double current_time) override;
 
         inline Name GetFirer() { return firer_; }
 
         bool ValidCollision(GameObject* other_game_object, double deltatime);
         bool HandleCollision(GameObject* other_game_object, double deltatime);
 
-        void CheckLife(double delta_time) override;
+        void CheckLife(double current_time) override;
 
     private:
         // Initial position of the ray

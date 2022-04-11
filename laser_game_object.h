@@ -10,7 +10,7 @@ namespace game
 	{
 		public:
 			LaserGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p);
-			void Update(double delta_time);
+			void Update(double delta_time, double current_time);
 			void Render(Shader& shader, glm::mat4 view_matrix, double current_time);
 			bool ValidCollision(GameObject* other_game_object, double deltatime);
 			bool HandleCollision(GameObject* other_game_object, double deltatime);
@@ -21,6 +21,8 @@ namespace game
 
 			// Time of the previous frame
 			float last_t_;
+
+			float orbit_angle_;
 	};
 		
 		

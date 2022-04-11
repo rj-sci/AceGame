@@ -25,7 +25,7 @@ namespace game {
 
         inline std::vector<GameObject*> GetBullets() { return bullets_; }
 
-        void Update(double delta_time);
+        void Update(double delta_time, double current_time);
 
         virtual void Render(Shader& shader, glm::mat4 view_matrix, double current_time);
 

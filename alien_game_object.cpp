@@ -24,7 +24,7 @@ namespace game {
         float tempY = pow((playerPosition.y - position_.y), 2);
         float distance = sqrt(tempX + tempY);
 
-        if (distance <= 3.5f)
+        if (distance <= 2.5f)
         {
             SetState(true);
         }
@@ -34,11 +34,12 @@ namespace game {
         }
     }
 
-    void AlienGameObject::Update(double delta_time)
+    void AlienGameObject::Update(double delta_time, double current_time)
     {
         CheckDistance();
         if (state_ == false)
         {
+            //velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
             /*float x = cos(rotation_ * (3.14159265 / 180)) * 3.0f;
             float y = sin(rotation_ * (3.14159265 / 180)) * 3.0f;*/
 
@@ -46,35 +47,36 @@ namespace game {
             position_ += velocity_ * ((float)delta_time);
             //rotation_ += 2.0f;
             last_occurence_ = 0.0;
-            cool_down_ = -1.0f;
+            
         }
         else
         {
 
-
-            /*glm::vec3 playerPosition = target_->GetPosition();
+            glm::vec3 playerPosition = target_->GetPosition();
             glm::vec3 tempEnemyPosition = glm::vec3(position_.x * (1 - last_occurence_), position_.y * (1 - last_occurence_), 0.0f);
             glm::vec3 tempPlayerPosition = glm::vec3(last_occurence_ * playerPosition.x, last_occurence_ * playerPosition.y, 0.0f);
-            glm::vec3 updatedPosition = tempPlayerPosition + tempEnemyPosition;
+            glm::vec3 updatedPosition = (tempPlayerPosition + tempEnemyPosition);
 
             SetPosition(updatedPosition);
 
-            last_occurence_ = last_occurence_ + 0.00015;*/
+
+            last_occurence_ = last_occurence_ + 0.00015;
+            cool_down_ = -1.0f;
 
         }
 
-        if (state_)
+        if (state_ == false)
         {
-            if (cool_down_ == -1.0f || glfwGetTime() - cool_down_ >= 1.0)
+            if (cool_down_ == -1.0f || glfwGetTime() - cool_down_ >= 2.0)
             {
                 cool_down_ = glfwGetTime();
 
-                Bullet* bullet = new Bullet(GetPosition(), bullet_texture_, num_elements_, enemy, glfwGetTime(), target_);
+                Bullet* bullet = new Bullet(GetPosition(), bullet_texture_, num_elements_, enemy, glfwGetTime(), target_, this);
                 bullet->SetRotation(GetRotation()); // Orient bullet with direction it is going
                 bullet->SetScale(0.15);
                 // Add bullet at the end of list but before background
                 bullets_.push_back(bullet);
-                // Add bullet at the beginning but after player
+               // Add bullet at the beginning but after player
                 //game_objects_.insert(game_objects_.begin()+1, bullet);
 
                 // Set cooldown period in seconds
@@ -84,7 +86,16 @@ namespace game {
 
         for (int i = 0; i < bullets_.size(); i++)
         {
-            bullets_[i]->Update(delta_time);
+            bullets_[i]->Update(delta_time, current_time);
+        }
+
+        for (int i = 0; i < bullets_.size(); i++)
+        {
+            if (bullets_[i]->GetDead())
+            {
+                bullets_.erase(bullets_.begin() + i);
+            }
+            
         }
     }
 

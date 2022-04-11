@@ -11,7 +11,7 @@ namespace game {
     public:
         ParticleSystem(const glm::vec3& position, GLuint texture, int num_elements, GameObject* parent);
 
-        void Update(double delta_time) override;
+        void Update(double delta_time, double current_time) override;
 
         void Render(Shader& shader, glm::mat4 view_matrix, double current_time);
         virtual bool ValidCollision(GameObject* other_game_object, double deltatime);

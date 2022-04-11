@@ -11,10 +11,10 @@ namespace game {
     }
 
 
-    void ParticleSystem::Update(double delta_time) {
+    void ParticleSystem::Update(double delta_time, double current_time) {
 
         // Call the parent's update method to move the object in standard way, if desired
-        GameObject::Update(delta_time);
+        GameObject::Update(delta_time, current_time);
     }
 
 

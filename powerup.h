@@ -16,7 +16,7 @@ namespace game {
 	public:
 		PowerUp(const glm::vec3& position, GLuint texture, GLint num_elements, PUpType type);
 
-		void Update(double delta_time) override;
+		void Update(double delta_time, double current_time) override;
 		//getters
 		inline PUpType GetType() { return type_; }
 		//other

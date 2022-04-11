@@ -25,7 +25,7 @@ namespace game {
             // Constructor and destructor
             ~GameOver();
 
-            virtual void Update(double delta_time);
+            virtual void Update(double delta_time, double current_time);
             virtual void Render(Shader& shader, glm::mat4 view_matrix, double current_time);
             virtual bool ValidCollision(GameObject* other_game_object, double deltatime);
             virtual bool HandleCollision(GameObject* other_game_object, double deltatime);

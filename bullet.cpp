@@ -6,7 +6,7 @@
 
 namespace game {
 
-	Bullet::Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer, double spawnTime, GameObject* p)
+	Bullet::Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer, double spawnTime, GameObject* p, GameObject* c)
 		: GameObject(position, texture, num_elements, true, 0.5) {
 
 		initial_pos_ = position;
@@ -18,9 +18,11 @@ namespace game {
 		spawn_t_ = spawnTime;
 		target_ = p;
 		last_occurence_ = 0.0;
+
+		creator_ = c;
 	}
 
-	void Bullet::Update(double delta_time) {
+	void Bullet::Update(double delta_time, double current_time) {
 
 		// Call the parent's update method to move the object in standard way, if desired
 
@@ -29,7 +31,7 @@ namespace game {
 			double radians = ((2 * 3.1415926536 / 360) * (rotation_ + 90));
 			velocity_[0] = cos(radians) * BULLET_SPEED;
 			velocity_[1] = sin(radians) * BULLET_SPEED;
-			GameObject::Update(delta_time);
+			GameObject::Update(delta_time, current_time);
 
 			// Update current and previous time
 			last_t_ = current_t_;
@@ -51,7 +53,7 @@ namespace game {
 			glm::vec3 future = target_->GetPosition() + target_->GetVelocity();
 			glm::vec3 direction = future - position_;
 			direction = direction / glm::length(direction);
-			accel_ = 1.0f*(direction - velocity_);
+			accel_ = 2.0f*(direction - velocity_);
 
 			velocity_ += accel_ * ((float)delta_time);
 
@@ -74,6 +76,8 @@ namespace game {
 			//current_t += delta_time;
 		}
 
+		CheckLife(current_time);
+
 	}
 
 	bool Bullet::ValidCollision(GameObject* other_game_object, double deltatime) {
@@ -81,19 +85,26 @@ namespace game {
 		{
 		case player:
 			return Collision::CircleCircleCollision(other_game_object, position_, 0.0);
-		default:
+		case enemy:
 			return Collision::RayCircleCollision(other_game_object, initial_pos_, velocity_, last_t_, current_t_);
+		/*default:
+			return Collision::RayCircleCollision(other_game_object, initial_pos_, velocity_, last_t_, current_t_);*/
 		}
 	}
-	bool Bullet::HandleCollision(GameObject* other_game_object, double deltatime) {
+	bool Bullet::HandleCollision(GameObject* other_game_object, double deltatime) 
+	{
+		switch (this->GetFirer())
+		{
+			case enemy:
+				dead_ = true;
+		}
 		return true;
 	}
 
-	void Bullet::CheckLife(double delta_time)
+	void Bullet::CheckLife(double current_time)
 	{
 		
-		
-		if (delta_time - spawn_t_ >= 2.0f)
+		if (current_time - spawn_t_ >= 10.0f)
 		{
 			dead_ = true;
 		}

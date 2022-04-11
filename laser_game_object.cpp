@@ -10,13 +10,17 @@ namespace game
 		rotation_ = 0.0f;
 		scale_ = 1.0 / 2;
 		name_ = laser;
+
+
+		orbit_angle_ = 0.0f;
 	}
 
-	void LaserGameObject::Update(double delta_time)
+	void LaserGameObject::Update(double delta_time, double current_time)
 	{
 		float x = cos(rotation_ * (3.14159265 / 180));
 		float y = sin(rotation_ * (3.14159265 / 180));
 
+		orbit_angle_ += 150 * delta_time;
 
 		SetPosition(glm::vec3(x, y, 0.0f));
 
@@ -44,11 +48,15 @@ namespace game
 		// Set up the translation matrix for the shader
 		glm::mat4 translation_matrix = glm::translate(glm::mat4(1.0f), position_);
 
+		glm::mat4 rotation_matrix = glm::rotate(glm::mat4(1.0f), rotation_, glm::vec3(0.0, 0.0, 1.0));
+
+		glm::mat4 orbit_rotation = glm::rotate(glm::mat4(1.0f), orbit_angle_, glm::vec3(0.0, 0.0, 1.0));
+
 		glm::mat4 rotation = glm::rotate(glm::mat4(1.0f), rotation_, glm::vec3(0.0f, 0.0f, 1.0f));
 
 
 		// Setup the transformation matrix for the shader
-		glm::mat4 transformation_matrix = target_->GetParentTransformation() * translation_matrix * scaling_matrix;
+		glm::mat4 transformation_matrix = target_->GetParentTransformation() * translation_matrix * orbit_rotation * scaling_matrix;
 		//glm::mat4 transformation_matrix = scaling_matrix * translation_matrix * rotation * player_->GetParentTransformation();
 
 		// TODO: Add other types of transformations

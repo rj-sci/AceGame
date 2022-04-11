@@ -12,11 +12,11 @@ namespace game {
     }
 
 
-    void Shield::Update(double delta_time) {
+    void Shield::Update(double delta_time, double current_time) {
 
         // Update Shield position_ directly so that it's always centered on the player
         velocity_ = parent_->GetVelocity();
-        GameObject::Update(delta_time);
+        GameObject::Update(delta_time, current_time);
     }
     bool Shield::ValidCollision(GameObject* other_game_object, double deltatime) {
         /*

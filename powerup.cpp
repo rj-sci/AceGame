@@ -9,8 +9,8 @@ namespace game {
         name_ = powerup;
     }
 
-    void PowerUp::Update(double delta_time) {
-        GameObject::Update(delta_time);
+    void PowerUp::Update(double delta_time, double current_time) {
+        GameObject::Update(delta_time, current_time);
     }
 
     bool PowerUp::ValidCollision(GameObject* other_game_object, double deltatime) {

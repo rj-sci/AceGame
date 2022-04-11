@@ -18,7 +18,7 @@ namespace game
 
 	}
 
-	void GameOver::Update(double delta_time)
+	void GameOver::Update(double delta_time, double current_time)
 	{
 
 	}
@@ -42,6 +42,8 @@ namespace game
 
 		// Set the transformation matrix in the shader
 		shader.SetUniformMat4("transformation_matrix", transformation_matrix);
+
+		shader.SetUniformMat4("view_matrix", view_matrix);
 
 		// Draw the entity
 		glDrawElements(GL_TRIANGLES, num_elements_, GL_UNSIGNED_INT, 0);
