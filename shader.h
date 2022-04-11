@@ -5,6 +5,8 @@
 #include <GL/glew.h>
 #include <glm/glm.hpp>
 
+#define NUM_PARTICLES 4000
+
 namespace game {
 
     class Shader {
@@ -17,6 +19,18 @@ namespace game {
 
             void Enable();
             void Disable();
+
+            // Create geometry for sprite
+            void CreateSprite(void);
+
+            // Create geometry for particles
+            void CreateParticles(void);
+
+            // Set shader attributes for sprite
+            void SetSpriteAttributes(void);
+
+            // Set shader attributes for particles
+            void SetParticleAttributes(void);
 
             // Sets a uniform integer variable in your shader program to a value
             void SetUniform1i(const GLchar *name, int value);
@@ -36,11 +50,24 @@ namespace game {
             // Sets a uniform matrix4x4 variable in your shader program to a matrix4x4
             void SetUniformMat4(const GLchar *name, const glm::mat4 &matrix);
 
+            // Sets a uniform array of integers
+            void SetUniformIntArray(const GLchar* name, int len, const GLint* data);
+
             // Getters
             inline GLuint GetShaderID() { return shader_program_; }
+            inline int GetSpriteSize(void) { return size_sprite_; }
+            inline int GetParticleSize(void) { return size_particles_; }
 
         private:
             GLuint shader_program_;
+            GLuint vbo_sprite_;
+            GLuint ebo_sprite_;
+            int size_sprite_;
+
+            // Geometry of particles
+            GLuint vbo_particles_;
+            GLuint ebo_particles_;
+            int size_particles_;
 
     }; // class Shader
 

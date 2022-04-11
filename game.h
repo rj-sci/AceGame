@@ -12,12 +12,13 @@
 
 #include "shader.h"
 #include "defs.h"
-#include "asteroid.h"
 #include "player_game_object.h"
 #include "tile.h"
 #include "bullet.h"
 #include "powerup.h"
 #include "shield.h"
+#include "missile.h"
+#include "asteroid_game_object.h"
 
 namespace game {
 
@@ -44,13 +45,18 @@ namespace game {
             GLFWwindow *window_;
 
             // Shader for rendering the scene
-            Shader shader_;
+            Shader sprite_shader_;
+            //Shader for rendering particles
+            Shader particle_shader_;
+
+            Shader text_shader_;
+
 
             // Size of geometry to be rendered
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 12
+#define NUM_TEXTURES 17
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
@@ -78,11 +84,13 @@ namespace game {
             void Controls(void);
 
             // Update the game based on user input and simulation
-            void Update(double delta_time);
+            void Update(double delta_time, glm::mat4, glm::mat4);
 
             void UpdateTiles();
 
-            void PowerUps(double delta_time);
+            void SpawnEnemies(void);
+
+            void EnemyGeneration(void);
             //Check for objects that should be removed from the world
             void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i);
 
@@ -91,8 +99,12 @@ namespace game {
 
             int max_x_;
             int min_x_;
+            //variables used for enemy spawning
+            double enemy_cooldown_;
+            double last_time_;
 
             GameObject* camera_target_;
+            GameObject* game_over_obj_;
 
     }; // class Game
 

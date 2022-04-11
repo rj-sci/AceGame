@@ -20,6 +20,9 @@ namespace game
 
 		SetPosition(glm::vec3(x, y, 0.0f));
 
+		//Update last time and current time
+		last_t_ = current_t_;
+		current_t_ += delta_time;
 
 
 		rotation_ += 2.0f;
@@ -30,7 +33,7 @@ namespace game
 		}
 	}
 
-	void LaserGameObject::Render(Shader& shader)
+	void LaserGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)
 	{
 		// Bind the entity's texture
 		glBindTexture(GL_TEXTURE_2D, texture_);
@@ -56,5 +59,15 @@ namespace game
 
 		// Draw the entity
 		glDrawElements(GL_TRIANGLES, num_elements_, GL_UNSIGNED_INT, 0);
+	}
+	bool LaserGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {
+		switch (other_game_object->GetName()) {
+		case player:
+			return Collision::RayCircleCollision(other_game_object, position_, velocity_, last_t_, current_t_);
+			break;
+		}
+	}
+	bool LaserGameObject::HandleCollision(GameObject* other_game_object, double deltatime) {
+		return true;
 	}
 }

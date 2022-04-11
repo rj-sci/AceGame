@@ -2,6 +2,7 @@
 #include <vector>
 #include "game_object.h"
 
+#define BULLET_SPEED 2
 namespace game {
 
     // Class that abstracts a bullet fired from a game object
@@ -9,10 +10,13 @@ namespace game {
     class Bullet : public GameObject {
 
     public:
-        Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer, double spawnTime);
+        static float current_t;
+        Bullet(const glm::vec3& position, GLuint texture, GLint num_elements,Name firer, double spawnTime, GameObject* p = NULL);
 
         // Update function for moving the player object around
         void Update(double delta_time) override;
+
+        inline Name GetFirer() { return firer_; }
 
         bool ValidCollision(GameObject* other_game_object, double deltatime);
         bool HandleCollision(GameObject* other_game_object, double deltatime);
@@ -32,6 +36,11 @@ namespace game {
         Name firer_;
 
         float spawn_t_;
+
+        GameObject* target_;
+        GameObject* creator_;
+
+        double last_occurence_;
 
     }; // class Bullet
 

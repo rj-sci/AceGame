@@ -29,11 +29,14 @@ void GameObject::Update(double delta_time) {
 }
 
 
-void GameObject::Render(Shader &shader) {
+void GameObject::Render(Shader &shader, glm::mat4 view_matrix, double current_time) {
 
     // Bind the entity's texture
     glBindTexture(GL_TEXTURE_2D, texture_);
 
+    // Set up the shader
+    shader.Enable();
+    shader.SetSpriteAttributes();
     // Setup the scaling matrix for the shader
     glm::mat4 scaling_matrix = glm::scale(glm::mat4(1.0f), glm::vec3(scale_, scale_, 1.0));
 
@@ -45,8 +48,12 @@ void GameObject::Render(Shader &shader) {
     // Setup the transformation matrix for the shader
     glm::mat4 transformation_matrix =  translation_matrix * rotation_matrix  * scaling_matrix;
 
+    parent_transformation_ = translation_matrix;
+
     // Set the transformation matrix in the shader
     shader.SetUniformMat4("transformation_matrix", transformation_matrix);
+
+    shader.SetUniformMat4("view_matrix", view_matrix);
 
     // Draw the entity
     glDrawElements(GL_TRIANGLES, num_elements_, GL_UNSIGNED_INT, 0);

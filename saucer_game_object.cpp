@@ -57,7 +57,7 @@ namespace game
     {
         switch (other_game_object->GetName()) {
         case player:
-            return Collision::CicleCircleCollision(other_game_object, position_, radius_);
+            return Collision::CircleCircleCollision(other_game_object, position_, radius_);
         /*case bullet:
             return Collision::CicleCircleCollision(other_game_object, position_, radius_);*/
         }
@@ -67,17 +67,18 @@ namespace game
         switch (other_game_object->GetName()) {
         case player:
             dead_ = true;
+            break;
             
         case bullet:
             dead_ = true;
+            break;
         }
 
         return true;
     }
 
-    void SaucerGameObject::Render(Shader& shader)
+    void SaucerGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)
     {
-        
 
         // Bind the entity's texture
         glBindTexture(GL_TEXTURE_2D, texture_);

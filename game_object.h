@@ -28,7 +28,7 @@ namespace game {
             virtual void Update(double delta_time);
 
             // Renders the GameObject using a shader
-            virtual void Render(Shader &shader);
+            virtual void Render(Shader &shader, glm::mat4 view_matrix, double current_time);
 
             inline virtual void CheckLife(double delta_time) {  }
             // Getters
@@ -76,6 +76,8 @@ namespace game {
             enum Name name_;
             //NEW: bool death checker
             bool dead_;
+
+            glm::vec3 accel_;
 
             glm::mat4 parent_transformation_;
 

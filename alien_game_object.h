@@ -8,6 +8,7 @@
 #include "powerup.h"
 #include "defs.h"
 #include "collision.h"
+#include "bullet.h"
 
 namespace game {
 
@@ -18,11 +19,15 @@ namespace game {
     class AlienGameObject : public GameObject {
     public:
 
-        AlienGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, bool collidable, float radius, Name name);
+        AlienGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, bool collidable, float radius, Name name, GLuint bulletTexture);
         inline void SetState(bool s) { state_ = s; }
         inline bool GetState() { return state_; }
 
+        inline std::vector<GameObject*> GetBullets() { return bullets_; }
+
         void Update(double delta_time);
+
+        virtual void Render(Shader& shader, glm::mat4 view_matrix, double current_time);
 
         bool ValidCollision(GameObject* other_game_object, double deltatime);
         bool HandleCollision(GameObject* other_game_object, double deltatime);
@@ -36,9 +41,14 @@ namespace game {
         bool state_;
 
         double last_occurence_;
+        double cool_down_;
+
+        GLuint bullet_texture_;
 
 
         GameObject* target_;
+
+        std::vector<GameObject*> bullets_;
 
     };
 

@@ -30,10 +30,4 @@ namespace game {
     bool Shield::HandleCollision(GameObject* other_game_object, double deltatime) {
         return true;
     }
-
-    void Shield::Render(Shader& shader)
-    {
-        GameObject::Render(shader);
-    }
-
 } // namespace game
