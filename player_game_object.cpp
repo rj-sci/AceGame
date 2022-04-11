@@ -16,6 +16,7 @@ PlayerGameObject::PlayerGameObject(const glm::vec3 &position, GLuint* textures, 
 	health_ = 3;
 	shielded_tex_ = textures[1];
 	default_tex_ = textures[0];
+	hurt_tex_ = textures[2];
 	num_missiles_ = 2;
 	shield_power_ = 0;
 	}
@@ -24,7 +25,10 @@ PlayerGameObject::PlayerGameObject(const glm::vec3 &position, GLuint* textures, 
 void PlayerGameObject::Update(double delta_time, double current_time) {
 	// Special player updates go here
 	glm::vec3 v = GetVelocity();
-
+	time_since_hit_ += delta_time;
+	if (texture_ == hurt_tex_ && time_since_hit_ > 0.5) {
+		texture_ = default_tex_;
+	}
 	if (v.x > 0.0)
 	{
 		v.x = v.x - 0.0065;
@@ -83,17 +87,17 @@ bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double del
 {
 	switch (other_game_object->GetName()) {
 		case enemy:
-			TakeDamage(2);
+			TakeDamage(2, deltatime);
 			break;
 		case laser:
-			TakeDamage(1);
+			TakeDamage(1, deltatime);
 			break;
 		case bullet:
 		{
 			Bullet *b = (Bullet*)other_game_object;
 			if (b->GetFirer() == enemy)
 			{
-				TakeDamage(1);
+				TakeDamage(1, deltatime);
 			}
 			
 			break;
@@ -113,7 +117,7 @@ bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double del
 	}
 	return true;
 }
-void PlayerGameObject::TakeDamage(int amt) {
+void PlayerGameObject::TakeDamage(int amt, double deltatime) {
 	if (power_up_ == shield_type) {
 		shield_power_--;
 		if (shield_power_ == 0) {
@@ -123,6 +127,8 @@ void PlayerGameObject::TakeDamage(int amt) {
 	}
 	else {
 		health_--;
+		time_since_hit_ = deltatime;
+		texture_ = hurt_tex_;
 		if (health_ == 0) {
 			dead_ = true;
 		}

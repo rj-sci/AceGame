@@ -24,14 +24,16 @@ namespace game {
             inline void SetPowerUp(PUpType type) { power_up_ = type; }
             inline void SetNumMissiles(int num) { num_missiles_ = num; }
             //player specific functions
-            void TakeDamage(int amt);
+            void TakeDamage(int amt, double deltatime);
         private:
             PUpType power_up_;
             GLuint shielded_tex_;
             GLuint default_tex_;
+            GLuint hurt_tex_;
             int shield_power_;
             int num_missiles_;
             int health_;
+            double time_since_hit_;
     }; // class PlayerGameObject
 
 } // namespace game

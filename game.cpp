@@ -112,9 +112,10 @@ void Game::Setup(void)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
         // Set up text quad
 
-    GLuint playertexs[2];
+    GLuint playertexs[3];
     playertexs[0] = tex_[0];
     playertexs[1] = tex_[1];
+    playertexs[2] = tex_[17];
 
     player_ = new PlayerGameObject(glm::vec3(0.0f, -5.0f, 0.0f), playertexs, size_);
     game_over_obj_ = new GameOver(glm::vec3(0.0f, -2.0f, 0.0f), tex_[15], size_, false, 0.0);
@@ -294,6 +295,7 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[14], (resources_directory_g + std::string("/textures/alien.png")).c_str());
     SetTexture(tex_[15], (resources_directory_g + std::string("/textures/game_over.png")).c_str());
     SetTexture(tex_[16], (resources_directory_g + std::string("/textures/charmap-cellphone_white.png")).c_str());
+    SetTexture(tex_[17], (resources_directory_g + std::string("/textures/damaged_player.png")).c_str());
 
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }

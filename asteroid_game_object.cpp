@@ -8,6 +8,7 @@ namespace game {
 		double y = (dir.y - position_.y + offset) * 0.3;
 		velocity_ = glm::vec3(x, y , 0);
 		scale_ = 3;
+		name_ = enemy;
 		
 	}
 
