@@ -5,12 +5,10 @@
 
 namespace game {
 
-    AlienGameObject::AlienGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, bool collidable, float radius, Name name, GLuint bulletTexture)
-        : GameObject(position, texture, num_elements, collidable, radius)
+    AlienGameObject::AlienGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, GLuint bulletTexture, GLuint hurt_tex)
+        : EnemyGameObject(position, texture, num_elements, hurt_tex, 1, 3)
     {
-        name_ = name;
         target_ = p;
-
         last_occurence_ = 0.0;
         state_ = false;
         bullet_texture_ = bulletTexture;
@@ -36,6 +34,10 @@ namespace game {
 
     void AlienGameObject::Update(double delta_time, double current_time)
     {
+        time_since_hit_ += delta_time;
+        if (texture_ == hurt_texture_ && time_since_hit_ > 0.5) {
+            texture_ = default_texture_;
+        }
         CheckDistance();
         if (state_ == false)
         {
@@ -97,28 +99,6 @@ namespace game {
             }
             
         }
-    }
-
-    bool AlienGameObject::ValidCollision(GameObject* other_game_object, double deltatime)
-    {
-        switch (other_game_object->GetName()) {
-        case player:
-            return Collision::CircleCircleCollision(other_game_object, position_, radius_);
-            /*case bullet:
-                return Collision::CicleCircleCollision(other_game_object, position_, radius_);*/
-        }
-    }
-    bool AlienGameObject::HandleCollision(GameObject* other_game_object, double deltatime)
-    {
-        switch (other_game_object->GetName()) {
-        case player:
-            dead_ = true;
-
-        case bullet:
-            dead_ = true;
-        }
-
-        return true;
     }
 
     void AlienGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)

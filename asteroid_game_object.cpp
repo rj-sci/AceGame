@@ -1,35 +1,22 @@
 #include "asteroid_game_object.h"
 
 namespace game {
-	AsteroidGameObject::AsteroidGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, glm::vec3 dir)
-	:	GameObject(position, texture, num_elements, true, 0.5){
-		double offset = (3 - (- 2) * ((double)rand() / (double)RAND_MAX) + (- 2));
+	AsteroidGameObject::AsteroidGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, glm::vec3 dir, GLuint hurt_tex)
+		: EnemyGameObject(position, texture, num_elements, hurt_tex, 1, 3) {
+		double offset = (3 - (-2) * ((double)rand() / (double)RAND_MAX) + (-2));
 		double x = (dir.x - position_.x + offset) * 0.3;
 		double y = (dir.y - position_.y + offset) * 0.3;
-		velocity_ = glm::vec3(x, y , 0);
+		velocity_ = glm::vec3(x, y, 0);
 		scale_ = 3;
-		name_ = enemy;
-		
 	}
 
 	void AsteroidGameObject::Update(double delta_time, double current_time) {
 		rotation_ += 0.4;
-		GameObject::Update(delta_time, current_time);
+		time_since_hit_ += delta_time;
+		if (texture_ == hurt_texture_ && time_since_hit_ > 0.5) {
+			texture_ = default_texture_;
+		}
+		EnemyGameObject::Update(delta_time, current_time);
 	}
 
-	bool AsteroidGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {
-		switch (other_game_object->GetName()) {
-		case player:
-			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
-		default:
-			return false;
-		}
-	}
-	bool AsteroidGameObject::HandleCollision(GameObject* other_game_object, double deltatime) {
-		switch (other_game_object->GetName()) {
-		case player:
-			dead_ = true;
-		}
-		return true;
-	}
 }

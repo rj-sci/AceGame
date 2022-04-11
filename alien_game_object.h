@@ -16,10 +16,10 @@ namespace game {
         GameObject is responsible for handling the rendering and updating of objects in the game world
         The update method is virtual, so you can inherit from GameObject and override the update functionality (see PlayerGameObject for reference)
     */
-    class AlienGameObject : public GameObject {
+    class AlienGameObject : public EnemyGameObject {
     public:
 
-        AlienGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, bool collidable, float radius, Name name, GLuint bulletTexture);
+        AlienGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, GLuint bulletTexture, GLuint hurt_tex);
         inline void SetState(bool s) { state_ = s; }
         inline bool GetState() { return state_; }
 
@@ -29,10 +29,10 @@ namespace game {
 
         virtual void Render(Shader& shader, glm::mat4 view_matrix, double current_time);
 
-        bool ValidCollision(GameObject* other_game_object, double deltatime);
-        bool HandleCollision(GameObject* other_game_object, double deltatime);
         //void Render(Shader& shader);
         void CheckDistance();
+        void TakeDamage(int amt, double deltatime);
+
 
     private:
 
@@ -49,7 +49,7 @@ namespace game {
         GameObject* target_;
 
         std::vector<GameObject*> bullets_;
-
+        int health_;
     };
 
 } // namespace game

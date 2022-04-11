@@ -296,7 +296,9 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[15], (resources_directory_g + std::string("/textures/game_over.png")).c_str());
     SetTexture(tex_[16], (resources_directory_g + std::string("/textures/charmap-cellphone_white.png")).c_str());
     SetTexture(tex_[17], (resources_directory_g + std::string("/textures/damaged_player.png")).c_str());
-
+    SetTexture(tex_[18], (resources_directory_g + std::string("/textures/damaged_alien.png")).c_str());
+    SetTexture(tex_[19], (resources_directory_g + std::string("/textures/damaged_asteroid.png")).c_str());
+    SetTexture(tex_[20], (resources_directory_g + std::string("/textures/damaged_saucer.png")).c_str());
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -622,13 +624,13 @@ void Game::SpawnEnemies() {
     int choice2 = rand() % 3;
     switch (choice2) {
         case 0:
-            game_objects_.push_back(new SaucerGameObject(arr[choice1], tex_[9], size_, player_, tex_[10], true, 1.0f, enemy));
+            game_objects_.push_back(new SaucerGameObject(arr[choice1], tex_[9], size_, player_, tex_[10], tex_[20],1.0f));
     
         case 1:
-            game_objects_.push_back(new AlienGameObject(arr[choice1], tex_[14], size_, player_, true, 0.5f, enemy, tex_[4]));
+            game_objects_.push_back(new AlienGameObject(arr[choice1], tex_[14], size_, player_, tex_[4], tex_[18]));
 
         case 2:
-            game_objects_.push_back(new AsteroidGameObject(arr[choice1], tex_[2], size_, player_->GetPosition()));
+            game_objects_.push_back(new AsteroidGameObject(arr[choice1], tex_[2], size_, player_->GetPosition(), tex_[19]));
     }
 }
 void Game::EnemyGeneration() {

@@ -6,10 +6,9 @@
 
 namespace game
 {
-    SaucerGameObject::SaucerGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, GLuint laserTex, bool collidable, float radius, Name name)
-        : GameObject(position, texture, num_elements, collidable, radius) {
+    SaucerGameObject::SaucerGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, GLuint laserTex, GLuint hurt_tex,float radius)
+        : EnemyGameObject(position, texture, num_elements,hurt_tex,1, 3) {
         target_ = p;
-        name_ = name;
         laser_ = new LaserGameObject(position, laserTex, num_elements, this);
     }
 
@@ -54,31 +53,6 @@ namespace game
         }*/
 
         laser_->Update(delta_time, current_time);
-
-    }
-
-    bool SaucerGameObject::ValidCollision(GameObject* other_game_object, double deltatime) 
-    {
-        switch (other_game_object->GetName()) {
-        case player:
-            return Collision::CircleCircleCollision(other_game_object, position_, radius_);
-        /*case bullet:
-            return Collision::CicleCircleCollision(other_game_object, position_, radius_);*/
-        }
-    }
-    bool SaucerGameObject::HandleCollision(GameObject* other_game_object, double deltatime) 
-    { 
-        switch (other_game_object->GetName()) {
-        case player:
-            dead_ = true;
-            break;
-            
-        case bullet:
-            dead_ = true;
-            break;
-        }
-
-        return true;
     }
 
     void SaucerGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)

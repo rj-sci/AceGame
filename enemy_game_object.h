@@ -8,13 +8,19 @@ namespace game {
     class EnemyGameObject : public GameObject {
 
     public:
-        EnemyGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GLuint dest_texture,Name name, int damage);
+        EnemyGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GLuint hurt_tex_,int damage, int health);
+        //inherited virtual functions
+        bool ValidCollision(GameObject* other_game_object, double deltatime);
+        bool HandleCollision(GameObject* other_game_object, double deltatime);
+        void TakeDamage(int amt, double deltatime);
 
         // Update function for moving the player object around
-    private:
-        GLuint dest_texture_;
-        bool dead_;
+    protected:
+        GLuint default_texture_;
+        GLuint hurt_texture_;
         int damage_;
+        int health_;
+        double time_since_hit_;
     }; // class EnemyGameObject
 
 } // namespace game
