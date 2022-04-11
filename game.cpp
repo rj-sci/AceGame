@@ -4,6 +4,7 @@
 #include "collision.h"
 #include "saucer_game_object.h"
 #include "alien_game_object.h"
+#include "game_over.h"
 namespace game {
 
 // Some configuration constants
@@ -99,6 +100,7 @@ void Game::Setup(void)
     // Setup the player object (position, texture, vertex count)
     // Note that, in this specific implementation, the player object should always be the first object in the game object vector 
     player_ = new PlayerGameObject(glm::vec3(0.0f, -5.0f, 0.0f), tex_[0], size_);
+    game_over_obj_ = new GameOver(glm::vec3(0.0f, -2.0f, 0.0f), tex_[12], size_, false, 0.0);
     game_objects_.push_back(player_);
 
 
@@ -126,6 +128,8 @@ void Game::Setup(void)
             tile_map_[tile_map_.size() - 1]->SetScale(10.0);
         }
     }
+
+    game_over_ = false;
 }
 
 
@@ -257,6 +261,7 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[9], (resources_directory_g + std::string("/textures/ufo.png")).c_str());
     SetTexture(tex_[10], (resources_directory_g + std::string("/textures/enemy_laser.png")).c_str());
     SetTexture(tex_[11], (resources_directory_g + std::string("/textures/alien.png")).c_str());
+    SetTexture(tex_[12], (resources_directory_g + std::string("/textures/game_over.png")).c_str());
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -366,12 +371,37 @@ void Game::Controls(void)
 
 void Game::Update(double delta_time)
 {
+    
+
+
+    game_over_obj_->SetPosition(player_->GetPosition());
+    if (game_over_)
+    {
+
+        game_over_obj_->Render(shader_);
+
+        for (int i = 0; i < game_objects_.size(); i++)
+        {
+            game_objects_[i]->Render(shader_);
+        }
+
+        for (int i = 0; i < tile_map_.size(); i++)
+        {
+            GameObject* current_tile = tile_map_[i];
+            current_tile->Update(delta_time);
+            current_tile->Render(shader_);
+        }
+        return;
+    }
     current_time_ += delta_time;
+
     // Handle user input
     Controls();
     //check for newly acquired powerups and add them to game_objects_
     PowerUps(delta_time);
     UpdateTiles();
+
+    //Bullet::current_t = current_time_;
 
     // Update and render all game objects
     for (int i = 0; i < game_objects_.size(); i++) {
@@ -383,6 +413,19 @@ void Game::Update(double delta_time)
 
         if (current_game_object->GetCollidable()) {
             Collision::FindCollisions(i, &game_objects_, current_game_object, delta_time);
+        }
+
+        AlienGameObject* alien = dynamic_cast<AlienGameObject*> (current_game_object);
+
+        if (alien != NULL)
+        {
+            std::vector<GameObject*> b = alien->GetBullets();
+
+            
+            for (int j = 0; j < b.size(); j++)
+            {
+                Collision::FindCollisions(i, &game_objects_, b[j], delta_time);
+            }
         }
 
         if (current_game_object->GetName() == bullet)
@@ -403,6 +446,7 @@ void Game::Update(double delta_time)
         current_tile->Update(delta_time);
         current_tile->Render(shader_);
     }
+
 }
 void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i) {
     if (current_game_object->GetDead()) {

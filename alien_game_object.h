@@ -23,7 +23,7 @@ namespace game {
         inline void SetState(bool s) { state_ = s; }
         inline bool GetState() { return state_; }
 
-        inline std::vector<Bullet*> GetBullets() { return bullets_; }
+        inline std::vector<GameObject*> GetBullets() { return bullets_; }
 
         void Update(double delta_time);
 
@@ -48,7 +48,7 @@ namespace game {
 
         GameObject* target_;
 
-        std::vector<Bullet*> bullets_;
+        std::vector<GameObject*> bullets_;
 
     };
 

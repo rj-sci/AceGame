@@ -25,6 +25,8 @@ namespace game {
     class Game {
 
         public:
+
+
             // Constructor and destructor
             Game(void);
             ~Game();
@@ -50,7 +52,7 @@ namespace game {
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 12
+#define NUM_TEXTURES 13
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
@@ -93,6 +95,7 @@ namespace game {
             int min_x_;
 
             GameObject* camera_target_;
+            GameObject* game_over_obj_;
 
     }; // class Game
 
