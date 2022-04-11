@@ -22,6 +22,7 @@ set(HDRS
     saucer_game_object.h
     laser_game_object.h
     alien_game_object.h
+    game_over.h
 )
  
 set(SRCS
@@ -43,6 +44,7 @@ set(SRCS
     saucer_game_object.cpp
     laser_game_object.cpp
     alien_game_object.cpp
+    game_over.cpp
 )
 
 # Add path name to configuration file
