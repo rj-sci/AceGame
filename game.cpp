@@ -90,7 +90,10 @@ void Game::Init(void)
     max_x_ = 10.0;
     min_x_ = -10.0;
     current_time_ = 0.0;
-    cool_down_ = 0;
+    proj_cool_down_ = 0;
+    enemy_goal_ = 10;
+    enemy_limit_ = 3;
+
 }
 
 
@@ -155,6 +158,11 @@ void Game::Setup(void)
     missiles_->SetScale(glm::vec2(1.5, 0.5));
     missiles_->SetText("Missiles:" + std::to_string(player_->GetNumMissiles()));
     game_objects_.push_back(missiles_);
+
+    win_condition = new TextGameObject(glm::vec3(0.0f, 3.0f, 0.0f), tex_[16], player_);
+    win_condition->SetScale(glm::vec2(1.5, 0.5));
+    win_condition->SetText("Enemies - " + std::to_string(enemy_goal_));
+    game_objects_.push_back(win_condition);
 
     game_over_ = false;
 }
@@ -299,6 +307,7 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[18], (resources_directory_g + std::string("/textures/damaged_alien.png")).c_str());
     SetTexture(tex_[19], (resources_directory_g + std::string("/textures/damaged_asteroid.png")).c_str());
     SetTexture(tex_[20], (resources_directory_g + std::string("/textures/damaged_saucer.png")).c_str());
+    SetTexture(tex_[21], (resources_directory_g + std::string("/textures/victory.png")).c_str());
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -407,7 +416,7 @@ void Game::Controls(void)
         glfwSetWindowShouldClose(window_, true);
     }
     if (glfwGetKey(window_, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        if (current_time_ > cool_down_) {
+        if (current_time_ > proj_cool_down_) {
             Bullet* bullet = new Bullet(player_->GetPosition(), tex_[6], size_, player, current_time_);
             bullet->SetRotation(player_->GetRotation()); // Orient bullet with direction it is going
             bullet->SetScale(0.15);
@@ -417,18 +426,18 @@ void Game::Controls(void)
             //game_objects_.insert(game_objects_.begin()+1, bullet);
 
             // Set cooldown period in seconds
-            cool_down_ = current_time_ + 0.5f;
+            proj_cool_down_ = current_time_ + 0.5f;
         }
 
     }
     if (glfwGetKey(window_, GLFW_KEY_Z) == GLFW_PRESS) {
-        if (current_time_ > cool_down_ && player_->GetNumMissiles() > 0) {
+        if (current_time_ > proj_cool_down_ && player_->GetNumMissiles() > 0) {
             Missile* missile = new Missile(player_->GetPosition(), tex_[11], size_, current_time_, tex_[13]);
             missile->SetRotation(player_->GetRotation()); // Orient bullet with direction it is going
             missile->SetScale(0.5);
             game_objects_.insert(game_objects_.end() - 1, missile);
 
-            cool_down_ = current_time_ + 0.5f;
+            proj_cool_down_ = current_time_ + 0.5f;
 
             player_->SetNumMissiles(player_->GetNumMissiles() - 1);
         }
@@ -506,6 +515,7 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
         health_->SetText("Health:" + std::to_string(player_->GetHealth()));
         shield_->SetText("Shield:" + std::to_string(player_->GetShieldPower()));
         missiles_->SetText("Missiles:" + std::to_string(player_->GetNumMissiles()));
+        win_condition->SetText("Enemies - " + std::to_string(enemy_goal_));
 
         // Render game object (check if its a particle system or text object)
         ParticleSystem* p = dynamic_cast<ParticleSystem*>(current_game_object);
@@ -526,6 +536,10 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
         //remove object if it is out of health
         GetDeadObjects(current_game_object, &game_objects_, i);
         }
+        if (enemy_goal_ == 0) {
+            game_over_ = true;
+            game_over_obj_->SetTexture(tex_[21]);
+        }
 
         //Tile Loop
         sprite_shader_.SetSpriteAttributes();
@@ -540,8 +554,12 @@ void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObjec
     if (current_game_object->GetDead()) {
         if (current_game_object->GetName() == player) {
             game_over_ = true;
+            return;
         }
         (*game_objects_).erase((*game_objects_).begin() + i);
+        if (current_game_object->GetName() == enemy) {
+            enemy_goal_--;
+        }
     }
 }
 
@@ -636,8 +654,9 @@ void Game::SpawnEnemies() {
 void Game::EnemyGeneration() {
     enemy_cooldown_ = current_time_ - last_time_;
     int num = rand() % 3;
-    if (enemy_cooldown_ > 5 && num == 0) {
+    if (enemy_cooldown_ > 5 && num_enemies_ < enemy_limit_ && num == 0) {
         SpawnEnemies();
+        num_enemies_++;
         last_time_ = current_time_;
     }
 }

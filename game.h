@@ -59,12 +59,13 @@ namespace game {
             TextGameObject* shield_;
             //missiles
             TextGameObject* missiles_;
-
+            //enemies left
+            TextGameObject* win_condition;
             // Size of geometry to be rendered
             int size_;
 
             // References to textures
-#define NUM_TEXTURES 21
+            #define NUM_TEXTURES 22
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
@@ -73,7 +74,16 @@ namespace game {
             std::vector<GameObject*> tile_map_;
             //firing of bullets
             double current_time_;
-            double cool_down_;
+            double proj_cool_down_;
+
+            //Goal to reach to win the game
+            int enemy_goal_;
+            //num enemies currently on-screen
+            int num_enemies_;
+            //max enemies allowed on-screen
+            int enemy_limit_;
+            //time value for spawning enemies per second
+            double enemy_cooldown_;
 
             bool game_over_;
             // Callback for when the window is resized
@@ -108,7 +118,6 @@ namespace game {
             int max_x_;
             int min_x_;
             //variables used for enemy spawning
-            double enemy_cooldown_;
             double last_time_;
 
             GameObject* camera_target_;

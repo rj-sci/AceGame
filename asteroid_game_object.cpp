@@ -2,7 +2,7 @@
 
 namespace game {
 	AsteroidGameObject::AsteroidGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, glm::vec3 dir, GLuint hurt_tex)
-		: EnemyGameObject(position, texture, num_elements, hurt_tex, 1, 3) {
+		: EnemyGameObject(position, texture, num_elements, hurt_tex, 1, 1) {
 		double offset = (3 - (-2) * ((double)rand() / (double)RAND_MAX) + (-2));
 		double x = (dir.x - position_.x + offset) * 0.3;
 		double y = (dir.y - position_.y + offset) * 0.3;

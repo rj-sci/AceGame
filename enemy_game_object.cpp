@@ -17,6 +17,7 @@ namespace game {
         hurt_texture_ = hurt_texture;
         damage_ = damage;
         name_ = enemy;
+        health_ = health;
     }
 
     bool EnemyGameObject::ValidCollision(GameObject* other_game_object, double deltatime)

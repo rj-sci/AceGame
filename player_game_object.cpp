@@ -13,7 +13,7 @@ PlayerGameObject::PlayerGameObject(const glm::vec3 &position, GLuint* textures, 
 	: GameObject(position, textures[0], num_elements, true, 0.5) {
 	power_up_ = None;
 	name_ = player;
-	health_ = 3;
+	health_ = 20;
 	shielded_tex_ = textures[1];
 	default_tex_ = textures[0];
 	hurt_tex_ = textures[2];
