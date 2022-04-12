@@ -18,8 +18,10 @@ namespace game {
         damage_ = damage;
         name_ = enemy;
         health_ = health;
+        time_since_hit_ = 0.0;
     }
 
+    //Update method for EnemyGameObject
     void EnemyGameObject::Update(double delta_time, double current_time)
     {
         time_since_hit_ += delta_time;
@@ -28,6 +30,7 @@ namespace game {
         }
     }
 
+    //Checks the other game object's type and calls the appropriate collision function
     bool EnemyGameObject::ValidCollision(GameObject* other_game_object, double deltatime)
     {
         switch (other_game_object->GetName()) {
@@ -38,6 +41,8 @@ namespace game {
             return false;
         }
     }
+
+    //Handles the collision between an enemy and another object
     bool EnemyGameObject::HandleCollision(GameObject* other_game_object, double deltatime)
     {
         Bullet* b;
@@ -59,6 +64,8 @@ namespace game {
 
         return true;
     }
+
+    //EnemyGameObject's TakeDamage
     void EnemyGameObject::TakeDamage(int amt, double deltatime) {
         health_ -= amt;
         time_since_hit_ = deltatime;

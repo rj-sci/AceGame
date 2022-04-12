@@ -17,8 +17,8 @@ GameObject::GameObject(const glm::vec3 &position, GLuint texture, GLint num_elem
     collidable_ = collidable;
     radius_ = radius; 
     rotation_ = 0.0f;
-    //name_ = name;
     dead_ = false;
+    remove_ = false;
 }
 
 

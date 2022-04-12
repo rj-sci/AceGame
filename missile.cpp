@@ -5,6 +5,7 @@
 
 namespace game {
 
+	//Constructor
 	Missile::Missile(const glm::vec3& position, GLuint texture, GLint num_elements, double spawntime, GLuint explo)
 		: GameObject(position, texture, num_elements, true, 0.1) {
 		initial_pos_ = position;
@@ -17,6 +18,7 @@ namespace game {
 		exploded_ = false;
 	}
 
+	//Update
 	void Missile::Update(double delta_time, double current_time) {
 
 		// Call the parent's update method to move the object in standard way, if desired
@@ -32,14 +34,17 @@ namespace game {
 		}
 
 	}
+
+	//Checks for collisions with enemies and calls the appropriate function
 	bool Missile::ValidCollision(GameObject* other_game_object, double deltatime) {
 		switch (other_game_object->GetName()) {
 		case enemy:
-			//return Collision::RayCircleCollision(other_game_object, initial_pos_, velocity_, last_t_, current_t_);
 			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 			break;
 		}
 	}
+
+	//Handles collision with enemy
 	bool Missile::HandleCollision(GameObject* other_game_object, double deltatime) {
 		collidable_ = false;
 		texture_ = explosion_;
@@ -47,6 +52,7 @@ namespace game {
 		return true;
 	}
 
+	//Checks life
 	void Missile::CheckLife(double delta_time)
 	{
 		if (delta_time - spawn_t_ >= 3.5f)

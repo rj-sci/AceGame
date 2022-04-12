@@ -4,13 +4,14 @@
 
 namespace game {
 
+//Constructor
 TextGameObject::TextGameObject(const glm::vec3 &position, GLuint texture, PlayerGameObject* p)
 	: GameObject(position, texture, 0, false, 1.0) {
             text_ = "";
             p_ = p;
         }
 
-
+//Render
 void TextGameObject::Render(Shader &shader, glm::mat4 view_matrix, double current_time){
 
     // Bind the entity's texture

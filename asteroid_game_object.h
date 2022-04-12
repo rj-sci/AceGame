@@ -30,6 +30,7 @@ namespace game {
         GameObject* target;
         glm::vec3 dir_;
         int health_;
+        float life_timer_;
     };
 
 } // namespace game

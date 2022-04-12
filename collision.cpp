@@ -4,6 +4,8 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include "collision.h"
+
+//Loops through the array to find any potential collisions
 bool game::Collision::FindCollisions(int i, std::vector<GameObject*>* game_objects_, game::GameObject* current_game_object, double deltatime) {
 	// Check for collision with other game objects
 	int vecsize_ = game_objects_->size();
@@ -17,6 +19,8 @@ bool game::Collision::FindCollisions(int i, std::vector<GameObject*>* game_objec
 	}
 	return 0;
 }
+
+//Circle-circle collision - if the distance between two objects is less than or equal to their radii's summed up, there is a collision
 bool game::Collision::CircleCircleCollision(game::GameObject* other_game_object, glm::vec3 position, float radius) {
 
 	
@@ -25,22 +29,12 @@ bool game::Collision::CircleCircleCollision(game::GameObject* other_game_object,
 	float radii = other_game_object->GetRadius() + radius;
 	if (distance < radii) {
 
-		std::cout << "Distance: " << distance << std::endl;
-
-		std::cout << "This objct's radius" << radius << std::endl;
-
-		std::cout << other_game_object->GetName() << " radius: " << other_game_object->GetRadius() << std::endl;
-
-		std::cout << "Laser position x" << position.x << std::endl;
-		std::cout << "Laser position y" << position.y << std::endl;
-
-		std::cout << "Player position x" << other_game_object->GetPosition().x << std::endl;
-		std::cout << "Player position y" << other_game_object->GetPosition().y << std::endl;
-		
 		return true;
 	}
 	return false;
 }
+
+//Ray circle collision
 bool game::Collision::RayCircleCollision(game::GameObject* other_game_object, glm::vec3 initial_position, glm::vec3 velocity, float last_t, float current_t) {
 	glm::vec3 pmc(initial_position - other_game_object->GetPosition());
 	float a = glm::dot(velocity, velocity);

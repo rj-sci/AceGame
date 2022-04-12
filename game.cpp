@@ -139,12 +139,12 @@ void Game::Setup(void)
             tile_map_[tile_map_.size() - 1]->SetScale(10.0);
         }
     }
-    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 0.0f, 0.0f), tex_[5], size_, shield_type));
     
 
     ParticleSystem* particles = new ParticleSystem(glm::vec3(0.0f, -0.5f, 0.0f), tex_[12], size_, player_);
     particles->SetScale(0.2);
     game_objects_.push_back(particles);
+    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 0.0f, 0.0f), tex_[5], size_, shield_type));
     //Set up UI elements
     health_ = new TextGameObject(glm::vec3(-3.2f, -1.0f, 0.0f), tex_[16], player_);
     health_->SetScale(glm::vec2(1.5, 0.5));
@@ -456,6 +456,10 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
     float cameraZoom = 0.25f;
     view_matrix = translation_matrix * glm::scale(glm::mat4(1.0f), glm::vec3(cameraZoom, cameraZoom, cameraZoom));
 
+
+
+    
+
     game_over_obj_->SetPosition(player_->GetPosition());
 
     if (game_over_)
@@ -477,12 +481,28 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
         return;
     }
 
+
+    if (player_->GetPowerUp() == shield_type)
+    {
+        TextGameObject* temp = new TextGameObject(glm::vec3(3.0f, -2.0f, 0.0f), tex_[16], player_);
+        temp->SetScale(glm::vec2(1.5, 0.5));
+        temp->SetText("Timer:" + std::to_string(int(floor(10.0 - player_->GetShieldTimer() + 1))));
+
+        temp->Update(delta_time, current_time_);
+        text_shader_.SetUniformMat4("view_matrix", view_matrix);
+        temp->Render(text_shader_, view_matrix, current_time_);
+
+    }
+
     // Handle user input
     Controls();
-    //check for newly acquired powerups and add them to game_objects_
+
+    //Updates tiles
     UpdateTiles();
+
     //check if we should add a new enemy to the world
     EnemyGeneration();
+
     //check if we should add a new poweruo
     PowerUpGeneration();
     //Update and render all game objects
@@ -524,15 +544,6 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
         
 
         
-
-        if (current_game_object->GetName() == bullet || current_game_object->GetName() == missile) 
-        {
-            
-
-            current_game_object->CheckLife(current_time_);
-
-
-        }
         //Update UI
         health_->SetText("Health:" + std::to_string(player_->GetHealth()));
         shield_->SetText("Shield:" + std::to_string(player_->GetShieldPower()));
@@ -572,6 +583,8 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
             current_tile->Render(sprite_shader_, view_matrix, current_time_);
         }
 }
+
+//Gets the dead game objects and removes them from the array
 void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i) {
     if (current_game_object->GetDead()) {
         if (current_game_object->GetName() == player) {
@@ -579,12 +592,13 @@ void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObjec
             return;
         }
         (*game_objects_).erase((*game_objects_).begin() + i);
-        if (current_game_object->GetName() == enemy) {
+        if (current_game_object->GetName() == enemy && current_game_object->GetAddName() != asteroid) {
             enemy_goal_--;
         }
     }
 }
 
+//Updates the tiles for world generation
 void Game::UpdateTiles()
 {
     glm::vec3 pos = player_->GetPosition();
@@ -651,6 +665,8 @@ void Game::UpdateTiles()
         min_x_ = min_x_ - 10;
     }
 }
+
+//Randomly spawns enemies
 void Game::SpawnEnemies() {
     int choice1 = rand() % 4;
     float max = 5;
@@ -673,6 +689,8 @@ void Game::SpawnEnemies() {
             game_objects_.push_back(new AsteroidGameObject(arr[choice1], tex_[2], size_, player_->GetPosition(), tex_[19]));
     }
 }
+
+//Generates enemies
 void Game::EnemyGeneration() {
     enemy_cooldown_ = current_time_ - last_enemy_generated;
     int num = rand() % 3;
@@ -683,6 +701,7 @@ void Game::EnemyGeneration() {
     }
 }
 
+//Generate powerups
 void Game::PowerUpGeneration() {
     powerup_cooldown_ = current_time_ - last_p_generated_;
     int num = rand() % 3;
@@ -692,6 +711,8 @@ void Game::PowerUpGeneration() {
         last_p_generated_ = current_time_;
     }
 }
+
+//Spawns powerups
 void Game::SpawnPowerUps() {
     int choice1 = rand() % 4;
     float max = 5;

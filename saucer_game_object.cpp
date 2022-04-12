@@ -1,18 +1,19 @@
 #include "saucer_game_object.h"
-#include "laser_game_object.h"
+#include "fire_game_object.h"
 #include <glm/gtc/matrix_transform.hpp>
 #include <iostream>
 #include <GLFW/glfw3.h>
 
 namespace game
 {
+    //Constructor
     SaucerGameObject::SaucerGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, GLuint laserTex, GLuint hurt_tex,float radius)
         : EnemyGameObject(position, texture, num_elements,hurt_tex,1, 3) {
         target_ = p;
-        laser_ = new LaserGameObject(position, laserTex, num_elements, this);
+        laser_ = new FireGameObject(position, laserTex, num_elements, this);
     }
 
-
+    //Update
     void SaucerGameObject::Update(double delta_time, double current_time)
     {
         float x = cos(rotation_ * (3.14159265 / 180)) * 3.0f;
@@ -21,36 +22,6 @@ namespace game
         SetVelocity(glm::vec3(x, y, 0.0f));
         position_ += velocity_ * ((float)delta_time);
         rotation_ += 2.0f;
-        /*if (GetCrash())
-        {
-            return;
-        }
-        CheckDistance();
-
-        if (state_ == false)
-        {
-            float x = cos(angle_ * (3.14159265 / 180)) * 3.0f;
-            float y = sin(angle_ * (3.14159265 / 180)) * 3.0f;
-
-            SetVelocity(glm::vec3(x, y, 0.0f));
-            position_ += velocity_ * ((float)delta_time);
-            angle_ += 2.0f;
-            last_occurence_ = 0.0;
-        }
-        else
-        {
-
-
-            glm::vec3 playerPosition = target_->GetPosition();
-            glm::vec3 tempEnemyPosition = glm::vec3(position_.x * (1 - last_occurence_), position_.y * (1 - last_occurence_), 0.0f);
-            glm::vec3 tempPlayerPosition = glm::vec3(last_occurence_ * playerPosition.x, last_occurence_ * playerPosition.y, 0.0f);
-            glm::vec3 updatedPosition = tempPlayerPosition + tempEnemyPosition;
-
-            SetPosition(updatedPosition);
-
-            last_occurence_ = last_occurence_ + 0.00015;
-
-        }*/
 
         laser_->Update(delta_time, current_time);
 

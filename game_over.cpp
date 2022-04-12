@@ -7,6 +7,8 @@
 
 namespace game
 {
+
+	//Constructor for Game Over object
 	GameOver::GameOver(const glm::vec3& position, GLuint texture, GLint num_elements, bool collidable_, float radius)
 		: GameObject(position, texture, num_elements, collidable_, radius) {
 
@@ -23,6 +25,7 @@ namespace game
 
 	}
 
+	//Render
 	void GameOver::Render(Shader& shader, glm::mat4 view_matrix, double current_time) {
 
 		// Bind the entity's texture

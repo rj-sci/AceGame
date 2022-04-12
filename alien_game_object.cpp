@@ -5,6 +5,7 @@
 
 namespace game {
 
+    //AlienGameObject constructor
     AlienGameObject::AlienGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, GLuint bulletTexture, GLuint hurt_tex)
         : EnemyGameObject(position, texture, num_elements, hurt_tex, 1, 3)
     {
@@ -14,6 +15,8 @@ namespace game {
         bullet_texture_ = bulletTexture;
         cool_down_ = -1.0;
     }
+
+    //Checks distance between player and the alien. If it's close enough, the state is set to chase mode
     void AlienGameObject::CheckDistance()
     {
         glm::vec3 playerPosition = target_->GetPosition();
@@ -32,6 +35,7 @@ namespace game {
         }
     }
 
+    //Update function for the alien
     void AlienGameObject::Update(double delta_time, double current_time)
     {
         time_since_hit_ += delta_time;
@@ -41,13 +45,7 @@ namespace game {
         CheckDistance();
         if (state_ == false)
         {
-            //velocity_ = glm::vec3(0.0f, 0.0f, 0.0f);
-            /*float x = cos(rotation_ * (3.14159265 / 180)) * 3.0f;
-            float y = sin(rotation_ * (3.14159265 / 180)) * 3.0f;*/
-
-            //SetVelocity(glm::vec3(x, y, 0.0f));
             position_ += velocity_ * ((float)delta_time);
-            //rotation_ += 2.0f;
             last_occurence_ = 0.0;
             
         }
@@ -69,22 +67,24 @@ namespace game {
 
         if (state_ == false)
         {
-            if (cool_down_ == -1.0f || glfwGetTime() - cool_down_ >= 2.0)
+            if (cool_down_ == -1.0f || glfwGetTime() - cool_down_ >= 5.0)
             {
                 cool_down_ = glfwGetTime();
 
                 Bullet* bullet = new Bullet(GetPosition(), bullet_texture_, num_elements_, enemy, glfwGetTime(), target_, this);
                 bullet->SetRotation(GetRotation()); // Orient bullet with direction it is going
                 bullet->SetScale(0.15);
-                // Add bullet at the end of list but before background
+
+
+                // Add bullet at the end of list
                 bullets_.push_back(bullet);
-               // Add bullet at the beginning but after player
-                //game_objects_.insert(game_objects_.begin()+1, bullet);
 
                 // Set cooldown period in seconds
                 cool_down_ = glfwGetTime();
             }
         }
+
+        //Update and render each bullet
 
         for (int i = 0; i < bullets_.size(); i++)
         {
@@ -103,6 +103,8 @@ namespace game {
         EnemyGameObject::Update(delta_time, current_time);
     }
 
+
+    //Render function for alien
     void AlienGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)
     {
         GameObject::Render(shader, view_matrix, current_time);

@@ -5,6 +5,7 @@
 
 namespace game {
 
+    //Constructor
     Shield::Shield(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* parent)
         : GameObject(position, texture, num_elements, true, 0.5) {
         parent_ = parent;
@@ -19,12 +20,6 @@ namespace game {
         GameObject::Update(delta_time, current_time);
     }
     bool Shield::ValidCollision(GameObject* other_game_object, double deltatime) {
-        /*
-        switch (other_game_object->GetName()) {
-        case bullet:
-            return Collision::RayCircleCollision(other_game_object, initial_pos_, velocity_, last_t_, current_t_);
-        }
-        */
         return false;
     }
     bool Shield::HandleCollision(GameObject* other_game_object, double deltatime) {

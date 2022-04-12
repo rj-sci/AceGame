@@ -42,6 +42,9 @@ namespace game {
             inline bool GetDead(void) { return dead_; }
             inline glm::mat4 GetParentTransformation(void) { return parent_transformation_; }
 
+            inline bool GetRemove(void) { return remove_; }
+            inline Name GetAddName(void) { return add_name_; }
+
             // Setters
             inline void SetPosition(const glm::vec3& position) { position_ = position; }
             inline void SetScale(float scale) { scale_ = scale; }
@@ -74,12 +77,15 @@ namespace game {
             GLuint texture_;
             //NEW: enum-type class name
             enum Name name_;
+            enum Name add_name_;
             //NEW: bool death checker
             bool dead_;
 
             glm::vec3 accel_;
 
             glm::mat4 parent_transformation_;
+
+            bool remove_;
 
            
 

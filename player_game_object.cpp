@@ -13,7 +13,7 @@ PlayerGameObject::PlayerGameObject(const glm::vec3 &position, GLuint* textures, 
 	: GameObject(position, textures[0], num_elements, true, 0.5) {
 	power_up_ = None;
 	name_ = player;
-	health_ = 20;
+	health_ = 100;
 	shielded_tex_ = textures[1];
 	default_tex_ = textures[0];
 	hurt_tex_ = textures[2];
@@ -32,10 +32,11 @@ void PlayerGameObject::Update(double delta_time, double current_time) {
 
 	shield_timer_ += delta_time;
 
-	if (texture_ == shielded_tex_ && shield_timer_ >= 3.0)
+	if (texture_ == shielded_tex_ && shield_timer_ >= 10.0)
 	{
 		power_up_ = None;
 		texture_ = default_tex_;
+		shield_power_ = 0;
 	}
 	if (v.x > 0.0)
 	{
@@ -82,6 +83,8 @@ void PlayerGameObject::Update(double delta_time, double current_time) {
 	GameObject::Update(delta_time, current_time);
 }
 
+
+//Checks and calls the appropriate collision functions with enemy, powerup, and laser
 bool PlayerGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {
 	switch (other_game_object->GetName()) {
 		case enemy:
@@ -93,6 +96,8 @@ bool PlayerGameObject::ValidCollision(GameObject* other_game_object, double delt
 			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 		}
 }
+
+//Handles any collision
 bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double deltatime) 
 {
 	switch (other_game_object->GetName()) {
@@ -132,6 +137,8 @@ bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double del
 	}
 	return true;
 }
+
+//Takes damage
 void PlayerGameObject::TakeDamage(int amt, double deltatime) {
 	if (power_up_ == shield_type) {
 		shield_power_--;

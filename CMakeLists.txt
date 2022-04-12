@@ -19,7 +19,7 @@ set(HDRS
     powerup.h
     shield.h
     saucer_game_object.h
-    laser_game_object.h
+    fire_game_object.h
     missile.h
     particle_system.h
     alien_game_object.h
@@ -45,7 +45,7 @@ set(SRCS
     vertex_shader.glsl
     fragment_shader.glsl
     saucer_game_object.cpp
-    laser_game_object.cpp
+    fire_game_object.cpp
     missile.cpp
     particle_system.cpp
     particle_vertex_shader.glsl
