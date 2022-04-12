@@ -93,7 +93,8 @@ void Game::Init(void)
     proj_cool_down_ = 0;
     enemy_goal_ = 10;
     enemy_limit_ = 3;
-
+    num_powerups_ = 0;
+    powerup_limit_ = 3;
 }
 
 
@@ -308,6 +309,7 @@ void Game::SetAllTextures(void)
     SetTexture(tex_[19], (resources_directory_g + std::string("/textures/damaged_asteroid.png")).c_str());
     SetTexture(tex_[20], (resources_directory_g + std::string("/textures/damaged_saucer.png")).c_str());
     SetTexture(tex_[21], (resources_directory_g + std::string("/textures/victory.png")).c_str());
+    SetTexture(tex_[22], (resources_directory_g + std::string("/textures/satellite.png")).c_str());
     glBindTexture(GL_TEXTURE_2D, tex_[0]);
 }
 
@@ -480,6 +482,8 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
     UpdateTiles();
     //check if we should add a new enemy to the world
     EnemyGeneration();
+    //check if we should add a new poweruo
+    PowerUpGeneration();
     //Update and render all game objects
     
     for (int i = 0; i < game_objects_.size(); i++) {
@@ -652,13 +656,48 @@ void Game::SpawnEnemies() {
     }
 }
 void Game::EnemyGeneration() {
-    enemy_cooldown_ = current_time_ - last_time_;
+    enemy_cooldown_ = current_time_ - last_enemy_generated;
     int num = rand() % 3;
     if (enemy_cooldown_ > 5 && num_enemies_ < enemy_limit_ && num == 0) {
         SpawnEnemies();
         num_enemies_++;
-        last_time_ = current_time_;
+        last_enemy_generated = current_time_;
     }
 }
+
+void Game::PowerUpGeneration() {
+    powerup_cooldown_ = current_time_ - last_p_generated_;
+    int num = rand() % 3;
+    if (powerup_cooldown_ > 7 && num_powerups_ < powerup_limit_ && num == 0) {
+        SpawnPowerUps();
+        num_powerups_++;
+        last_p_generated_ = current_time_;
+    }
+}
+void Game::SpawnPowerUps() {
+    int choice1 = rand() % 4;
+    float max = 5;
+    float min = -5;
+    float ran = min + static_cast <float> (rand()) / (static_cast <float> (RAND_MAX / (max - min)));
+    glm::vec3 pos1 = glm::vec3(player_->GetPosition().x - 5, player_->GetPosition().y + ran, 0);
+    glm::vec3 pos2 = glm::vec3(player_->GetPosition().x + 5, player_->GetPosition().y + ran, 0);
+    glm::vec3 pos3 = glm::vec3(player_->GetPosition().x + ran, player_->GetPosition().y - 5, 0);
+    glm::vec3 pos4 = glm::vec3(player_->GetPosition().x + ran, player_->GetPosition().y + 5, 0);
+    glm::vec3 arr[4] = { pos1,pos2,pos3,pos4 };
+    int choice2 = rand() % 2;
+    switch (choice2) {
+    case 0:
+        game_objects_.push_back(new PowerUp(arr[choice1], tex_[5], size_, shield_type));
+        break;
+
+    case 1:
+        game_objects_.push_back(new PowerUp(arr[choice1], tex_[22], size_, satellite_type));
+        std::cout << "satellite spawned!\n";
+        break;
+    }
+}
+
+
+
        
 } // namespace game

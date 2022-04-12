@@ -65,7 +65,7 @@ namespace game {
             int size_;
 
             // References to textures
-            #define NUM_TEXTURES 22
+            #define NUM_TEXTURES 23
             GLuint tex_[NUM_TEXTURES];
 
             // List of game objects
@@ -84,6 +84,11 @@ namespace game {
             int enemy_limit_;
             //time value for spawning enemies per second
             double enemy_cooldown_;
+
+            double powerup_cooldown_;
+            int num_powerups_;
+            int powerup_limit_;
+            double last_p_generated_;
 
             bool game_over_;
             // Callback for when the window is resized
@@ -112,13 +117,16 @@ namespace game {
             //Check for objects that should be removed from the world
             void Game::GetDeadObjects(GameObject* current_game_object, std::vector<GameObject*>* game_objects_, int i);
 
+            void PowerUpGeneration(void);
+            void SpawnPowerUps();
+
             int max_y_;
             int min_y_;
 
             int max_x_;
             int min_x_;
             //variables used for enemy spawning
-            double last_time_;
+            double last_enemy_generated;
 
             GameObject* camera_target_;
             GameObject* game_over_obj_;
