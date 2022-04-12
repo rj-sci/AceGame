@@ -94,7 +94,7 @@ void Game::Init(void)
     enemy_goal_ = 10;
     enemy_limit_ = 3;
     num_powerups_ = 0;
-    powerup_limit_ = 3;
+    powerup_limit_ = 10;
 }
 
 
@@ -705,7 +705,7 @@ void Game::EnemyGeneration() {
 void Game::PowerUpGeneration() {
     powerup_cooldown_ = current_time_ - last_p_generated_;
     int num = rand() % 3;
-    if (powerup_cooldown_ > 7 && num_powerups_ < powerup_limit_ && num == 0) {
+    if (powerup_cooldown_ > 4 && num_powerups_ < powerup_limit_ && num == 0) {
         SpawnPowerUps();
         num_powerups_++;
         last_p_generated_ = current_time_;
