@@ -97,14 +97,24 @@ namespace game {
 		{
 			case enemy:
 				dead_ = true;
+			case player:
+				if (other_game_object->GetName() != player)
+				{
+					dead_ = true;
+				}
+				
 		}
 		return true;
 	}
 
 	void Bullet::CheckLife(double current_time)
 	{
-		
-		if (current_time - spawn_t_ >= 10.0f)
+		float limit = 2.0f;
+		if (firer_ == enemy)
+		{
+			limit = 10.0f;
+		}
+		if (current_time - spawn_t_ >= limit)
 		{
 			dead_ = true;
 		}

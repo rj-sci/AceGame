@@ -29,6 +29,14 @@ void PlayerGameObject::Update(double delta_time, double current_time) {
 	if (texture_ == hurt_tex_ && time_since_hit_ > 0.5) {
 		texture_ = default_tex_;
 	}
+
+	shield_timer_ += delta_time;
+
+	if (texture_ == shielded_tex_ && shield_timer_ >= 3.0)
+	{
+		power_up_ = None;
+		texture_ = default_tex_;
+	}
 	if (v.x > 0.0)
 	{
 		v.x = v.x - 0.0065;
@@ -80,20 +88,26 @@ bool PlayerGameObject::ValidCollision(GameObject* other_game_object, double delt
 			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 		case powerup:
 			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
-		//Leave laser-player to be handled by Laser class, difficult to call ray-circle here
+
+		case laser:
+			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 		}
 }
 bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double deltatime) 
 {
 	switch (other_game_object->GetName()) {
 		case enemy:
+			std::cout << "Enemy" << std::endl;
 			TakeDamage(2, deltatime);
 			break;
 		case laser:
+			std::cout << "Laser" << std::endl;
+
 			TakeDamage(1, deltatime);
 			break;
 		case bullet:
 		{
+			std::cout << "Bullet" << std::endl;
 			Bullet *b = (Bullet*)other_game_object;
 			if (b->GetFirer() == enemy)
 			{
@@ -107,6 +121,7 @@ bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double del
 			PowerUp* pwrup = dynamic_cast<PowerUp*>(other_game_object);
 			if (pwrup->GetType() == shield_type) {
 				texture_ = shielded_tex_;
+				shield_timer_ = deltatime;
 				power_up_ = shield_type;
 				shield_power_ = 3;
 			}

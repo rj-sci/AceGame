@@ -20,6 +20,14 @@ namespace game {
         health_ = health;
     }
 
+    void EnemyGameObject::Update(double delta_time, double current_time)
+    {
+        time_since_hit_ += delta_time;
+        if (texture_ == hurt_texture_ && time_since_hit_ > 0.5) {
+            texture_ = default_texture_;
+        }
+    }
+
     bool EnemyGameObject::ValidCollision(GameObject* other_game_object, double deltatime)
     {
         switch (other_game_object->GetName()) {

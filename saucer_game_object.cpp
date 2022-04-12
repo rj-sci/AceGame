@@ -53,6 +53,9 @@ namespace game
         }*/
 
         laser_->Update(delta_time, current_time);
+
+        EnemyGameObject::Update(delta_time, current_time);
+        
     }
 
     void SaucerGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)

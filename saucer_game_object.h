@@ -19,6 +19,8 @@ namespace game {
         //getters
        void TakeDamage(int amt, double deltatime);
 
+       inline GameObject* GetLaser() { return laser_; }
+
 
        
         //setters

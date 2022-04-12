@@ -138,6 +138,7 @@ void Game::Setup(void)
             tile_map_[tile_map_.size() - 1]->SetScale(10.0);
         }
     }
+    game_objects_.push_back(new PowerUp(glm::vec3(0.0f, 0.0f, 0.0f), tex_[5], size_, shield_type));
     
 
     ParticleSystem* particles = new ParticleSystem(glm::vec3(0.0f, -0.5f, 0.0f), tex_[12], size_, player_);
@@ -487,21 +488,38 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
         GameObject* current_game_object = game_objects_[i];
         // Update the current game object
         current_game_object->Update(delta_time, current_time_);
+
         if (current_game_object->GetCollidable()) {
             Collision::FindCollisions(i, &game_objects_, current_game_object, delta_time);
         }
 
-        AlienGameObject* alien = dynamic_cast<AlienGameObject*> (current_game_object);
-        if (alien != NULL)
+        if (current_game_object->GetName() == enemy)
         {
-            std::vector<GameObject*> b = alien->GetBullets();
-
-
-            for (int j = 0; j < b.size(); j++)
+            AlienGameObject* alien = dynamic_cast<AlienGameObject*> (current_game_object);
+            if (alien != NULL)
             {
-                Collision::FindCollisions(i, &game_objects_, b[j], delta_time);
+                std::vector<GameObject*> b = alien->GetBullets();
+
+
+                for (int j = 0; j < b.size(); j++)
+                {
+                    Collision::FindCollisions(i, &game_objects_, b[j], delta_time);
+                }
+            }
+            else
+            {
+                SaucerGameObject* saucer = dynamic_cast<SaucerGameObject*> (current_game_object);
+
+                if (saucer != NULL)
+                {
+                    Collision::FindCollisions(i, &game_objects_, saucer->GetLaser(), delta_time);
+                }
             }
         }
+
+        
+
+        
 
         if (current_game_object->GetName() == bullet || current_game_object->GetName() == missile) 
         {

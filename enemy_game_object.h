@@ -14,6 +14,8 @@ namespace game {
         bool HandleCollision(GameObject* other_game_object, double deltatime);
         void TakeDamage(int amt, double deltatime);
 
+        virtual void Update(double delta_time, double current_time);
+
         // Update function for moving the player object around
     protected:
         GLuint default_texture_;
