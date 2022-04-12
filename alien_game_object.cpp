@@ -99,6 +99,8 @@ namespace game {
             }
             
         }
+
+        EnemyGameObject::Update(delta_time, current_time);
     }
 
     void AlienGameObject::Render(Shader& shader, glm::mat4 view_matrix, double current_time)

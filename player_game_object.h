@@ -34,6 +34,8 @@ namespace game {
             int num_missiles_;
             int health_;
             double time_since_hit_;
+
+            float shield_timer_;
     }; // class PlayerGameObject
 
 } // namespace game

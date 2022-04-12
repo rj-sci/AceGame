@@ -16,6 +16,8 @@ namespace game
 			bool HandleCollision(GameObject* other_game_object, double deltatime);
 		private:
 			GameObject* target_;
+
+			glm::vec3 actualPosition_;
 			// Time of current frame since the creation of the bullet
 			float current_t_;
 
