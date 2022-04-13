@@ -1,6 +1,7 @@
 #include "player_game_object.h"
 #include "collision.h"
 #include "Bullet.h"
+#include "defs.h"
 
 namespace game {
 
@@ -19,6 +20,9 @@ PlayerGameObject::PlayerGameObject(const glm::vec3 &position, GLuint* textures, 
 	hurt_tex_ = textures[2];
 	num_missiles_ = 2;
 	shield_power_ = 0;
+
+	shield_timer_ = 0.0;
+	time_since_hit_ = 0.0;
 	}
 
 // Update function for moving the player object around
@@ -26,13 +30,14 @@ void PlayerGameObject::Update(double delta_time, double current_time) {
 	// Special player updates go here
 	glm::vec3 v = GetVelocity();
 	time_since_hit_ += delta_time;
-	if (texture_ == hurt_tex_ && time_since_hit_ > 0.5) {
+
+	if (texture_ == hurt_tex_ && time_since_hit_ > HIT_COOLDOWN) {
 		texture_ = default_tex_;
 	}
 
 	shield_timer_ += delta_time;
 
-	if (texture_ == shielded_tex_ && shield_timer_ >= 10.0)
+	if ((texture_ == shielded_tex_) && (shield_timer_ >= MAX_SHIELD))
 	{
 		power_up_ = None;
 		texture_ = default_tex_;
@@ -84,7 +89,7 @@ void PlayerGameObject::Update(double delta_time, double current_time) {
 }
 
 
-//Checks and calls the appropriate collision functions with enemy, powerup, and laser
+//Checks and calls the appropriate collision functions with enemy, powerup, and fireball
 bool PlayerGameObject::ValidCollision(GameObject* other_game_object, double deltatime) {
 	switch (other_game_object->GetName()) {
 		case enemy:
@@ -92,7 +97,7 @@ bool PlayerGameObject::ValidCollision(GameObject* other_game_object, double delt
 		case powerup:
 			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 
-		case laser:
+		case fireball:
 			return Collision::CircleCircleCollision(other_game_object, position_, radius_);
 		}
 }
@@ -102,17 +107,14 @@ bool PlayerGameObject::HandleCollision(GameObject* other_game_object, double del
 {
 	switch (other_game_object->GetName()) {
 		case enemy:
-			std::cout << "Enemy" << std::endl;
 			TakeDamage(2, deltatime);
 			break;
-		case laser:
-			std::cout << "Laser" << std::endl;
+		case fireball:
 
 			TakeDamage(1, deltatime);
 			break;
 		case bullet:
 		{
-			std::cout << "Bullet" << std::endl;
 			Bullet *b = (Bullet*)other_game_object;
 			if (b->GetFirer() == enemy)
 			{

@@ -16,17 +16,15 @@ namespace game {
         void Update(double delta_tim, double current_time) override;
 
         void Render(Shader& shader, glm::mat4 view_matrix, double current_time) override;
-        //getters
-       void TakeDamage(int amt, double deltatime);
 
-       inline GameObject* GetLaser() { return laser_; }
+       inline GameObject* GetFireball() { return fireball_; }
 
 
        
         //setters
     private:
         GameObject* target_;
-        GameObject* laser_;
+        GameObject* fireball_;
         int health_;
 
          

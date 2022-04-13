@@ -22,7 +22,6 @@ namespace game {
 
         void Update(double delta_time, double current_time);
         //void Render(Shader& shader);
-        void TakeDamage(int amt, double deltatime);
 
 
     private:

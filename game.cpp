@@ -6,6 +6,7 @@
 #include "particle_system.h"
 #include "alien_game_object.h"
 #include "game_over.h"
+#include "defs.h"
 namespace game {
 
 // Some configuration constants
@@ -486,7 +487,7 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
     {
         TextGameObject* temp = new TextGameObject(glm::vec3(3.0f, -2.0f, 0.0f), tex_[16], player_);
         temp->SetScale(glm::vec2(1.5, 0.5));
-        temp->SetText("Timer:" + std::to_string(int(floor(10.0 - player_->GetShieldTimer() + 1))));
+        temp->SetText("Timer:" + std::to_string(int(floor(MAX_SHIELD - player_->GetShieldTimer() + 1))));
 
         temp->Update(delta_time, current_time_);
         text_shader_.SetUniformMat4("view_matrix", view_matrix);
@@ -536,7 +537,7 @@ void Game::Update(double delta_time, glm::mat4 view_matrix, glm::mat4 translatio
 
                 if (saucer != NULL)
                 {
-                    Collision::FindCollisions(i, &game_objects_, saucer->GetLaser(), delta_time);
+                    Collision::FindCollisions(i, &game_objects_, saucer->GetFireball(), delta_time);
                 }
             }
         }
@@ -731,7 +732,6 @@ void Game::SpawnPowerUps() {
 
     case 1:
         game_objects_.push_back(new PowerUp(arr[choice1], tex_[22], size_, satellite_type));
-        std::cout << "satellite spawned!\n";
         break;
     }
 }

@@ -27,6 +27,8 @@ namespace game
 		float last_t_;
 		GLuint explosion_;
 		bool exploded_;
+
+		float explosion_t_;
 	};
 
 

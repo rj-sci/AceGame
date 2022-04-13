@@ -25,7 +25,7 @@ namespace game {
 			texture_ = default_texture_;
 		}
 
-		if (life_timer_ >= 7.0f)
+		if (life_timer_ >= ASTEROID_LIFE_TIME)
 		{
 			dead_ = true;
 		}

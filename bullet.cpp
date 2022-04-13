@@ -49,7 +49,7 @@ namespace game {
 			glm::vec3 future = target_->GetPosition() + target_->GetVelocity();
 			glm::vec3 direction = future - position_;
 			direction = direction / glm::length(direction);
-			accel_ = 2.0f*(direction - velocity_);
+			accel_ = MAX_BULLET_SPEED*(direction - velocity_);
 
 			velocity_ += accel_ * ((float)delta_time);
 
@@ -97,10 +97,10 @@ namespace game {
 	//Checks bullet life. If it exceeds the time limit, set it to "dead"
 	void Bullet::CheckLife(double current_time)
 	{
-		float limit = 2.0f;
+		float limit = PLAYER_BULLET_TIME;
 		if (firer_ == enemy)
 		{
-			limit = 7.0f;
+			limit = ENEMY_BULLET_TIME;
 		}
 		if (current_time - spawn_t_ >= limit)
 		{

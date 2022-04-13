@@ -25,7 +25,7 @@ namespace game {
     void EnemyGameObject::Update(double delta_time, double current_time)
     {
         time_since_hit_ += delta_time;
-        if (texture_ == hurt_texture_ && time_since_hit_ > 0.5) {
+        if (texture_ == hurt_texture_ && time_since_hit_ > HIT_COOLDOWN) {
             texture_ = default_texture_;
         }
     }
@@ -67,10 +67,11 @@ namespace game {
 
     //EnemyGameObject's TakeDamage
     void EnemyGameObject::TakeDamage(int amt, double deltatime) {
+        std::cout << health_ << std::endl;
         health_ -= amt;
         time_since_hit_ = deltatime;
         texture_ = hurt_texture_;
-        if (health_ == 0) {
+        if (health_ <= 0) {
             dead_ = true;
         }
     }

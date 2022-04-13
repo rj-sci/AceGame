@@ -16,6 +16,7 @@ namespace game {
 		spawn_t_ = spawntime;
 		explosion_ = explo;
 		exploded_ = false;
+		explosion_t_ = 0.0;
 	}
 
 	//Update
@@ -31,6 +32,15 @@ namespace game {
 			// Update current and previous time
 			last_t_ = current_t_;
 			current_t_ += delta_time;
+		}
+		else
+		{
+			explosion_t_ += delta_time;
+
+			if (explosion_t_ >= 1.5f)
+			{
+				dead_ = true;
+			}
 		}
 
 	}
@@ -49,6 +59,7 @@ namespace game {
 		collidable_ = false;
 		texture_ = explosion_;
 		exploded_ = true;
+		explosion_t_ = deltatime;
 		return true;
 	}
 
@@ -59,6 +70,9 @@ namespace game {
 		{
 			dead_ = true;
 		}
+
+
+
 	}
 
 } // namespace game

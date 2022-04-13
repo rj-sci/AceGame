@@ -10,7 +10,7 @@ namespace game
     SaucerGameObject::SaucerGameObject(const glm::vec3& position, GLuint texture, GLint num_elements, GameObject* p, GLuint laserTex, GLuint hurt_tex,float radius)
         : EnemyGameObject(position, texture, num_elements,hurt_tex,1, 3) {
         target_ = p;
-        laser_ = new FireGameObject(position, laserTex, num_elements, this);
+        fireball_ = new FireGameObject(position, laserTex, num_elements, this);
     }
 
     //Update
@@ -23,7 +23,7 @@ namespace game
         position_ += velocity_ * ((float)delta_time);
         rotation_ += 2.0f;
 
-        laser_->Update(delta_time, current_time);
+        fireball_->Update(delta_time, current_time);
 
         EnemyGameObject::Update(delta_time, current_time);
         
@@ -54,7 +54,7 @@ namespace game
         // Draw the entity
         glDrawElements(GL_TRIANGLES, num_elements_, GL_UNSIGNED_INT, 0);
 
-        laser_->Render(shader, view_matrix, current_time);
+        fireball_->Render(shader, view_matrix, current_time);
         
     }
 }

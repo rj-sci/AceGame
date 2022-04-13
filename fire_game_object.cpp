@@ -10,7 +10,7 @@ namespace game
 		target_ = p;
 		rotation_ = 0.0f;
 		scale_ = 1.0 / 2;
-		name_ = laser;
+		name_ = fireball;
 
 		actualPosition_ = glm::vec3(0.0, 0.0, 0.0);
 
