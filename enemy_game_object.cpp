@@ -67,7 +67,6 @@ namespace game {
 
     //EnemyGameObject's TakeDamage
     void EnemyGameObject::TakeDamage(int amt, double deltatime) {
-        std::cout << health_ << std::endl;
         health_ -= amt;
         time_since_hit_ = deltatime;
         texture_ = hurt_texture_;
